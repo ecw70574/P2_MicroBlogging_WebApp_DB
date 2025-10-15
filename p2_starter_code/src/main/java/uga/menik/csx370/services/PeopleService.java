@@ -5,18 +5,30 @@ This is a project developed by Dr. Menik to give the students an opportunity to 
 */
 package uga.menik.csx370.services;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.sql.DataSource;
 
 import org.springframework.stereotype.Service;
 
 import uga.menik.csx370.models.FollowableUser;
-import uga.menik.csx370.utility.Utility;
 
 /**
  * This service contains people related functions.
  */
 @Service
 public class PeopleService {
+
+    private final DataSource dataSource;
+
+    public PeopleService(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
     
     /**
      * This function should query and return all users that 
@@ -37,7 +49,33 @@ public class PeopleService {
         // how to create a list of FollowableUsers.
 
         // Replace the following line and return the list you created.
-        return Utility.createSampleFollowableUserList();
+        final String followableSql = "SELECT userID, firstName, lastName FROM user WHERE userId <> ?"; //creates sql query 
+        List<FollowableUser> followableUsers = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement followableStmt = conn.prepareStatement(followableSql)) { //passes sql queary
+
+                followableStmt.setString(1, userIdToExclude);
+                try (ResultSet rs = followableStmt.executeQuery()) {
+                    // Traverse the result rows one at a time.
+                    // Note: This specific while loop will only run at most once 
+                    // since ID is unique
+                    while (rs.next()) {
+                    // Note: rs.get.. functions access attributes of the current row.
+                        followableUsers.add(new FollowableUser (
+                            rs.getString("userId"),
+                            rs.getString("firstName"),
+                            rs.getString("lastName"),
+                            false,
+                            ""
+                        ));
+                    }
+                }
+            } catch (SQLException e) {
+                System.out.println(e);
+            }
+
+        return followableUsers;
     }
 
 }
