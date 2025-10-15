@@ -37,21 +37,11 @@ public class PeopleService {
      */
     public List<FollowableUser> getFollowableUsers(String userIdToExclude) {
         // Write an SQL query to find the users that are not the current user.
-
-        // Run the query with a datasource.
-        // See UserService.java to see how to inject DataSource instance and
-        // use it to run a query.
-
-        // Use the query result to create a list of followable users.
-        // See UserService.java to see how to access rows and their attributes
-        // from the query result.
-        // Check the following createSampleFollowableUserList function to see 
-        // how to create a list of FollowableUsers.
-
-        // Replace the following line and return the list you created.
         final String followableSql = "SELECT userID, firstName, lastName FROM user WHERE userId <> ?"; //creates sql query 
+        // how to create a list of FollowableUsers
         List<FollowableUser> followableUsers = new ArrayList<>();
-
+        // Run the query with a datasource.        
+        // Inject DataSource instance and use it to run a query.
         try (Connection conn = dataSource.getConnection();
             PreparedStatement followableStmt = conn.prepareStatement(followableSql)) { //passes sql queary
 
@@ -61,7 +51,9 @@ public class PeopleService {
                     // Note: This specific while loop will only run at most once 
                     // since ID is unique
                     while (rs.next()) {
-                    // Note: rs.get.. functions access attributes of the current row.
+                        // Note: rs.get.. functions access attributes of the current row.
+                        // Access rows and their attributes
+                        // from the query result.
                         followableUsers.add(new FollowableUser (
                             rs.getString("userId"),
                             rs.getString("firstName"),
@@ -69,13 +61,13 @@ public class PeopleService {
                             false,
                             ""
                         ));
-                    }
-                }
+                    } //while
+                } //try
             } catch (SQLException e) {
                 System.out.println(e);
-            }
-
-        return followableUsers;
-    }
+            } //try-catch
+        // return the list you created.
+        return followableUsers; 
+    } //getFollowableUsers
 
 }
