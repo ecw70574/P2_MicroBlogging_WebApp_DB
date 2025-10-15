@@ -7,8 +7,10 @@ package uga.menik.csx370.controllers;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import uga.menik.csx370.models.Post;
+import uga.menik.csx370.services.PostService;
 import uga.menik.csx370.utility.Utility;
 
 /**
@@ -26,6 +29,8 @@ import uga.menik.csx370.utility.Utility;
 @RequestMapping
 public class HomeController {
 
+    @Autowired
+    private PostService postService;
     /**
      * This is the specific function that handles the root URL itself.
      * 
@@ -70,11 +75,17 @@ public class HomeController {
 
         // Redirect the user if the post creation is a success.
         // return "redirect:/";
-
-        // Redirect the user with an error message if there was an error.
-        String message = URLEncoder.encode("Failed to create the post. Please try again.",
+        try {
+            postService.createPost("currentUserId", postText);
+            return "redirect:/";
+        } catch (SQLException e) {
+            // Redirect the user with an error message if there was an error.
+            String message = URLEncoder.encode("Failed to create the post. Please try again.",
                 StandardCharsets.UTF_8);
-        return "redirect:/?error=" + message;
+            return "redirect:/?error=" + message;
+        }
+
+        
     }
 
 }

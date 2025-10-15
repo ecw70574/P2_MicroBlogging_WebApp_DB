@@ -11,18 +11,19 @@ import javax.sql.DataSource;
 
 import org.springframework.stereotype.Service;
 
-import uga.menik.csx370.models.FollowableUser;
 import uga.menik.csx370.models.Post;
+import uga.menik.csx370.models.User;
+
 
 /**
  * This service contains people related functions.
  */
 @Service
-public class PostServices {
+public class PostService {
 
     private final DataSource dataSource;
 
-    public PostServices(DataSource dataSource) {
+    public PostService(DataSource dataSource) {
         this.dataSource = dataSource;
     }
     
@@ -41,7 +42,7 @@ public class PostServices {
 
             int rowsAffected = postStmt.executeUpdate();
             return rowsAffected > 0;
-
+        }
     }
 
     /**
@@ -49,6 +50,8 @@ public class PostServices {
      * @return
      * @throws SQLException
      */
+
+
     public List<Post> getPosts() throws SQLException {
         List<Post> posts = new ArrayList<>();
 
@@ -58,11 +61,16 @@ public class PostServices {
         PreparedStatement postStmt = conn.prepareStatement(getPostSql); //passes sql query
         ResultSet rs = postStmt.executeQuery()) {
             while (rs.next()) {
+                User user = new User(rs.getString("userId"), "", "");
                 Post post = new Post(
-                    rs.getInt("postId"),
-                    rs.getString("content"),
-                    rs.getTimestamp("postDate"),
-                    rs.getString("user")
+                    rs.getString("postId"),
+                    rs.getString("contend"),
+                    rs.getTimestamp("createdAt").toString(),
+                    user,
+                    0,
+                    0,
+                    false,
+                    false
                 );
                 posts.add(post);
             }
