@@ -10,6 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +21,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import uga.menik.csx370.models.Post;
+import uga.menik.csx370.models.User;
 import uga.menik.csx370.services.PostService;
+import uga.menik.csx370.services.UserService;
+
 
 /**
  * This controller handles the home page and some of it's sub URLs.
@@ -30,6 +35,13 @@ public class HomeController {
 
     @Autowired
     private PostService postService;
+    private final UserService userService;
+    private final DataSource dataSource;
+
+    public HomeController(DataSource dataSource, UserService userService) {
+        this.dataSource = dataSource;
+        this.userService = userService;
+    }
     /**
      * This is the specific function that handles the root URL itself.
      * 
@@ -77,12 +89,18 @@ public class HomeController {
      */
     @PostMapping("/createpost")
     public String createPost(@RequestParam(name = "posttext") String postText) {
-        System.out.println("User is creating post: " + postText);
+        User user = userService.getLoggedInUser();
+
+
+        System.out.println(user.getUserId() + " is creating post: " + postText);
+
+
 
         // Redirect the user if the post creation is a success.
         // return "redirect:/";
         try {
-            postService.createPost("currentUserId", postText);
+
+            postService.createPost(user, postText);
             return "redirect:/";
         } catch (SQLException e) {
             // Redirect the user with an error message if there was an error.

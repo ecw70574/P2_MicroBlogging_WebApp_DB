@@ -35,13 +35,14 @@ public class PostService {
      * This function should create new posts.
      * Returns true if post creation was successful. 
      */
-    public boolean createPost(String userId, String content) throws SQLException {
+    public boolean createPost(User user, String content) throws SQLException {
         //create SQL query to insert the post from the user into posts table
+        //User user = userService.getLoggedInUser();
         final String postSql = "insert into post (userId, content, postDate) values (?, ?, NOW())";
 
         try (Connection conn = dataSource.getConnection(); //establish connection with database
             PreparedStatement postStmt = conn.prepareStatement(postSql)) { //passes sql queary
-            postStmt.setString(1, userId);
+            postStmt.setString(1, user.getUserId());
             postStmt.setString(2, content);
 
             int rowsAffected = postStmt.executeUpdate();
@@ -59,13 +60,19 @@ public class PostService {
     public List<Post> getPosts() throws SQLException {
         List<Post> posts = new ArrayList<>();
 
-        final String getPostSql = "select * from post";
+        final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName from post p join user u on p.userId = u.userId" ;
 
         try(Connection conn = dataSource.getConnection();
         PreparedStatement postStmt = conn.prepareStatement(getPostSql); //passes sql query
+
+        
         ResultSet rs = postStmt.executeQuery()) {
             while (rs.next()) {
-                User user = userService.getLoggedInUser();
+                User user = new User(
+                    rs.getString("userId"), 
+                    rs.getString("firstName"), 
+                    rs.getString("lastName")
+                    );
                 Post post = new Post(
                     rs.getString("postId"),
                     rs.getString("content"),
