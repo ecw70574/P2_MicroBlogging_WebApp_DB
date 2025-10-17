@@ -33,7 +33,7 @@ public class PostService {
      */
     public boolean createPost(String userId, String content) throws SQLException {
         //create SQL query to insert the post from the user into posts table
-        final String postSql = "insert into posts (userId, content, postDate) values (?, ?, NOW())";
+        final String postSql = "insert into post (userId, content, postDate) values (?, ?, NOW())";
 
         try (Connection conn = dataSource.getConnection(); //establish connection with database
             PreparedStatement postStmt = conn.prepareStatement(postSql)) { //passes sql queary
@@ -64,8 +64,8 @@ public class PostService {
                 User user = new User(rs.getString("userId"), "", "");
                 Post post = new Post(
                     rs.getString("postId"),
-                    rs.getString("contend"),
-                    rs.getTimestamp("createdAt").toString(),
+                    rs.getString("content"),
+                    rs.getTimestamp("postDate").toString(),
                     user,
                     0,
                     0,
