@@ -22,10 +22,14 @@ import uga.menik.csx370.models.User;
 public class PostService {
 
     private final DataSource dataSource;
+    private final UserService userService;
 
-    public PostService(DataSource dataSource) {
+    public PostService(DataSource dataSource, UserService userService) {
         this.dataSource = dataSource;
+        this.userService = userService;
     }
+
+    
     
     /**
      * This function should create new posts.
@@ -61,7 +65,7 @@ public class PostService {
         PreparedStatement postStmt = conn.prepareStatement(getPostSql); //passes sql query
         ResultSet rs = postStmt.executeQuery()) {
             while (rs.next()) {
-                User user = new User(rs.getString("userId"), "", "");
+                User user = userService.getLoggedInUser();
                 Post post = new Post(
                     rs.getString("postId"),
                     rs.getString("content"),
