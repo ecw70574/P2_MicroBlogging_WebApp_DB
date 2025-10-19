@@ -5,8 +5,10 @@ This is a project developed by Dr. Menik to give the students an opportunity to 
 */
 package uga.menik.csx370.controllers;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import uga.menik.csx370.models.Post;
-import uga.menik.csx370.utility.Utility;
+import uga.menik.csx370.services.HashtagService;
 
 /**
  * Handles /hashtagsearch URL and possibly others.
@@ -23,6 +25,9 @@ import uga.menik.csx370.utility.Utility;
 @Controller
 @RequestMapping("/hashtagsearch")
 public class HashtagSearchController {
+
+    @Autowired
+    private HashtagService hashtagService;
 
     /**
      * This function handles the /hashtagsearch URL itself.
@@ -40,8 +45,22 @@ public class HashtagSearchController {
 
         // Following line populates sample data.
         // You should replace it with actual data from the database.
-        List<Post> posts = Utility.createSamplePostsListWithoutComments();
-        mv.addObject("posts", posts);
+        try {
+            
+            List<Post> posts = hashtagService.searchPostHashtags(hashtags);
+
+            if (posts.isEmpty()) {
+                mv.addObject("isNoContent", true);
+            } else {
+                mv.addObject("posts", posts);
+            }
+            
+        } catch (SQLException e) {
+            String errorMessage = "Some error occured!";
+            mv.addObject("errorMessage", errorMessage);
+            e.printStackTrace();
+        }
+        
 
         // If an error occured, you can set the following property with the
         // error message to show the error message to the user.
