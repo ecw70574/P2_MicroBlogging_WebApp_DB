@@ -5,14 +5,22 @@ This is a project developed by Dr. Menik to give the students an opportunity to 
 */
 package uga.menik.csx370.controllers;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import uga.menik.csx370.models.FollowableUser;
 import uga.menik.csx370.models.Post;
+import uga.menik.csx370.models.User;
+import uga.menik.csx370.services.BookmarksService;
+import uga.menik.csx370.services.HashtagService;
+import uga.menik.csx370.services.PeopleService;
+import uga.menik.csx370.services.UserService;
 import uga.menik.csx370.utility.Utility;
 
 /**
@@ -26,6 +34,11 @@ import uga.menik.csx370.utility.Utility;
 @RequestMapping("/bookmarks")
 public class BookmarksController {
 
+    @Autowired
+    private BookmarksService bookmarksService;
+    private PeopleService peopleService;
+    private UserService userService;
+
     /**
      * /bookmarks URL itself is handled by this.
      */
@@ -36,10 +49,22 @@ public class BookmarksController {
         // in the template using Java objects assigned to named properties.
         ModelAndView mv = new ModelAndView("posts_page");
 
-        // Following line populates sample data.
-        // You should replace it with actual data from the database.
-        List<Post> posts = Utility.createSamplePostsListWithoutComments();
-        mv.addObject("posts", posts);
+        // getting the logged in user so that their book marked posted appear on the page
+        User loggedInUser = userService.getLoggedInUser();
+
+        // bookmarked posts 
+        try {
+            List<Post> posts = bookmarksService.getBookMarked(loggedInUser);
+            if (posts.isEmpty()) {
+                mv.addObject("isNoContent", true);
+            } else {
+                mv.addObject("posts", posts); // object not empy 
+            }
+        } catch (SQLException e) {
+            String errorMessage = "Some error occurred!";
+            mv.addObject("errorMessage", errorMessage);
+        }
+        
 
         // If an error occured, you can set the following property with the
         // error message to show the error message to the user.
