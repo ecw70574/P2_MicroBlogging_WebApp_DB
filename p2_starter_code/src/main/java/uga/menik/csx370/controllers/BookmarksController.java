@@ -52,7 +52,7 @@ public class BookmarksController {
         // getting the logged in user so that their book marked posted appear on the page
         User loggedInUser = userService.getLoggedInUser();
 
-        // bookmarked posts 
+        // Adding the bookmarked Posts to the page 
         try {
             List<Post> posts = bookmarksService.getBookMarked(loggedInUser);
             if (posts.isEmpty()) {
