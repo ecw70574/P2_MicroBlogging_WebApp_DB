@@ -17,12 +17,3 @@ create table if not exists user (
     constraint firstName_min_length check (char_length(trim(firstName)) >= 2),
     constraint lastName_min_length check (char_length(trim(lastName)) >= 2)
 );
-
--- Follow table - to store relationships between users
-create table if not exists follow (
-    followerId int not null,
-    followeeId int not null,
-    primary key (followerId, followeeId),
-    foreign key (followerId) references user(userId) on delete cascade,
-    foreign key (followeeId) references user(userId) on delete cascade
-);

@@ -18,7 +18,7 @@ create table if not exists user (
     constraint lastName_min_length check (char_length(trim(lastName)) >= 2)
 );
 
--- Follow table - to store relationships between users
+-- Follow table to store relationships between users
 create table if not exists follow (
     followerId int not null,
     followeeId int not null,

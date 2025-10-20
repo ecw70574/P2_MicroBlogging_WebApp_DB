@@ -71,41 +71,47 @@ public class PeopleService {
     } //getFollowableUsers
 
 
-    public boolean followUser(String followerId, String followeeId) {
-        final String sql = "INSERT INTO follow (followerId, followeeId) VALUES (?, ?)";
+    /**
+ * Follows another user by inserting a record into the follow table.
+ */
+public boolean followUser(String followerId, String followeeId) {
+    final String sql = "INSERT INTO follow (followerId, followeeId) VALUES (?, ?)";
 
-        try (Connection conn = dataSource.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    try (Connection conn = dataSource.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, followerId);
-            pstmt.setString(2, followeeId);
+        pstmt.setString(1, followerId);
+        pstmt.setString(2, followeeId);
 
-            int rows = pstmt.executeUpdate();
-            return rows > 0;
+        int rows = pstmt.executeUpdate();
+        return rows > 0;
 
-        } catch (SQLException e) {
-            System.out.println(e);
-            return false;
-        }
+    } catch (SQLException e) {
+        System.out.println(e);
+        return false;
     }
+}
 
-    public boolean unfollowUser(String followerId, String followeeId) {
-        final String sql = "DELETE FROM follow WHERE followerId = ? AND followeeId = ?";
+/**
+ * Unfollows a user by deleting the relationship from the follow table.
+ */
+public boolean unfollowUser(String followerId, String followeeId) {
+    final String sql = "DELETE FROM follow WHERE followerId = ? AND followeeId = ?";
 
-        try (Connection conn = dataSource.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    try (Connection conn = dataSource.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, followerId);
-            pstmt.setString(2, followeeId);
+        pstmt.setString(1, followerId);
+        pstmt.setString(2, followeeId);
 
-            int rows = pstmt.executeUpdate();
-            return rows > 0;
+        int rows = pstmt.executeUpdate();
+        return rows > 0;
 
-        } catch (SQLException e) {
-            System.out.println(e);
-            return false;
-        }
+    } catch (SQLException e) {
+        System.out.println(e);
+        return false;
     }
+}
 
 
 }

@@ -87,18 +87,18 @@ public class PeopleController {
             @PathVariable("isFollow") Boolean isFollow) {
         String followerId = userService.getLoggedInUser().getUserId();
 
-        boolean success = isFollow
-            ? peopleService.followUser(followerId, userId)
-            : peopleService.unfollowUser(followerId, userId);
+    boolean success = isFollow
+        ? peopleService.followUser(followerId, userId)
+        : peopleService.unfollowUser(followerId, userId);
 
-        if (success) {
-            return "redirect:/people";
-        } else {
-            String message = URLEncoder.encode(
-                "Failed to (un)follow the user. Please try again.",
-                StandardCharsets.UTF_8);
-            return "redirect:/people?error=" + message;
-        }
+    if (success) {
+        return "redirect:/people";
+    } else {
+        String message = URLEncoder.encode(
+            "Failed to (un)follow the user. Please try again.",
+            StandardCharsets.UTF_8);
+        return "redirect:/people?error=" + message;
+    }
     }
 
 }

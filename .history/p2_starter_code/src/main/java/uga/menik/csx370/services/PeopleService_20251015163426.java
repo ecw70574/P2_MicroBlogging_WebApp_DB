@@ -70,42 +70,4 @@ public class PeopleService {
         return followableUsers; 
     } //getFollowableUsers
 
-
-    public boolean followUser(String followerId, String followeeId) {
-        final String sql = "INSERT INTO follow (followerId, followeeId) VALUES (?, ?)";
-
-        try (Connection conn = dataSource.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, followerId);
-            pstmt.setString(2, followeeId);
-
-            int rows = pstmt.executeUpdate();
-            return rows > 0;
-
-        } catch (SQLException e) {
-            System.out.println(e);
-            return false;
-        }
-    }
-
-    public boolean unfollowUser(String followerId, String followeeId) {
-        final String sql = "DELETE FROM follow WHERE followerId = ? AND followeeId = ?";
-
-        try (Connection conn = dataSource.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, followerId);
-            pstmt.setString(2, followeeId);
-
-            int rows = pstmt.executeUpdate();
-            return rows > 0;
-
-        } catch (SQLException e) {
-            System.out.println(e);
-            return false;
-        }
-    }
-
-
 }

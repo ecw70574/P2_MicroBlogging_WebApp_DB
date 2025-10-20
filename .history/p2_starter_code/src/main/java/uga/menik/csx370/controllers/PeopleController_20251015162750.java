@@ -85,20 +85,17 @@ public class PeopleController {
     @GetMapping("{userId}/follow/{isFollow}")
     public String followUnfollowUser(@PathVariable("userId") String userId,
             @PathVariable("isFollow") Boolean isFollow) {
-        String followerId = userService.getLoggedInUser().getUserId();
+        System.out.println("User is attempting to follow/unfollow a user:");
+        System.out.println("\tuserId: " + userId);
+        System.out.println("\tisFollow: " + isFollow);
 
-        boolean success = isFollow
-            ? peopleService.followUser(followerId, userId)
-            : peopleService.unfollowUser(followerId, userId);
+        // Redirect the user if the comment adding is a success.
+        // return "redirect:/people";
 
-        if (success) {
-            return "redirect:/people";
-        } else {
-            String message = URLEncoder.encode(
-                "Failed to (un)follow the user. Please try again.",
+        // Redirect the user with an error message if there was an error.
+        String message = URLEncoder.encode("Failed to (un)follow the user. Please try again.",
                 StandardCharsets.UTF_8);
-            return "redirect:/people?error=" + message;
-        }
+        return "redirect:/people?error=" + message;
     }
 
 }
