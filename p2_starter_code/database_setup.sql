@@ -26,3 +26,15 @@ create table if not exists follow (
     foreign key (followerId) references user(userId) on delete cascade,
     foreign key (followeeId) references user(userId) on delete cascade
 );
+
+-- Post table - to store post information
+CREATE TABLE post (
+    postId INT AUTO_INCREMENT PRIMARY KEY,
+    content VARCHAR(500),
+    postDate VARCHAR(50),
+    userId VARCHAR(50),
+    heartsCount INT DEFAULT 0,
+    commentsCount INT DEFAULT 0,
+    isHearted BOOLEAN DEFAULT FALSE,
+    isBookmarked BOOLEAN DEFAULT FALSE
+);
