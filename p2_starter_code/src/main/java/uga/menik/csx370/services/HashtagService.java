@@ -39,7 +39,11 @@ public class HashtagService {
         // still need to implement that the most recent posts are displayed first 
         String [] searchedHashtags = hashtags.split(" ");
 
-        String getPostSql = "select p.postId, p.content, p.postDate from p join user u on p.userId = u.userId where " ;
+        String getPostSql = "select p.postId, p.content, p.postDate, u.userID, u.firstName, u.lastName " + 
+                                "from post AS p, user AS u " + 
+                                "where p.userId = u.userId AND " ;
+
+        //String getPostSql = "select p.content from post AS p where " ;
 
         // looping through the hastags so that we can search individually 
         for (int i = 0; i < searchedHashtags.length; i++) {
@@ -49,6 +53,8 @@ public class HashtagService {
             getPostSql += "p.content like ?"; // content contains the hashtag
         }
 
+        getPostSql += " ORDER BY p.postDate DESC";
+        
         try(Connection conn = dataSource.getConnection();
             PreparedStatement hashtStmt = conn.prepareStatement(getPostSql)){ //passes sql query
 
@@ -76,7 +82,10 @@ public class HashtagService {
                     );
                     posts.add(post);
                 }
+            } catch(SQLException e) {
+                System.out.println(e);
             }
+        } catch(SQLException e) {
         }
         return posts;
 
