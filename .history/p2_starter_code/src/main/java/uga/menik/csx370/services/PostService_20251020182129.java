@@ -91,7 +91,7 @@ public class PostService {
 
     //adds a like to a post
     public boolean addLike(String userId, String postId) {
-        // inserts a like in sql
+        // SQL to insert a like while ignoring duplicates
         final String addLikeSql = "INSERT IGNORE INTO post_like (userId, postId) VALUES (?, ?)";
 
         try (Connection conn = dataSource.getConnection();
@@ -109,9 +109,11 @@ public class PostService {
         }
     }
 
-    //removes a like from a post
+    /**
+     * Removes a like (heart) from the logged-in user on a post.
+     */
     public boolean removeLike(String userId, String postId) {
-        // deletes the like - sql
+        // SQL to delete the like record
         final String removeLikeSql = "DELETE FROM post_like WHERE userId = ? AND postId = ?";
 
         try (Connection conn = dataSource.getConnection();

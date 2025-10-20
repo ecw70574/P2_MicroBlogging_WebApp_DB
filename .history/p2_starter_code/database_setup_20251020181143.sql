@@ -41,10 +41,3 @@ CREATE TABLE post (
 );
 
 --liked posts
-CREATE TABLE IF NOT EXISTS post_like (
-    userId INT NOT NULL,
-    postId INT NOT NULL,
-    PRIMARY KEY (userId, postId),
-    FOREIGN KEY (userId) REFERENCES user(userId) ON DELETE CASCADE,
-    FOREIGN KEY (postId) REFERENCES post(postId) ON DELETE CASCADE
-);

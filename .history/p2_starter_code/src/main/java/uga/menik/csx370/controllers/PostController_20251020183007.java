@@ -20,7 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import uga.menik.csx370.models.ExpandedPost;
 import uga.menik.csx370.services.PostService;
-import uga.menik.csx370.services.UserService;
 import uga.menik.csx370.utility.Utility;
 
 
@@ -33,10 +32,6 @@ public class PostController {
 
     @Autowired
     private PostService postService;
-    
-    @Autowired
-    private UserService userService;
-
     /**
      * This function handles the /post/{postId} URL.
      * This handlers serves the web page for a specific post.
@@ -107,25 +102,23 @@ public class PostController {
         System.out.println("\tpostId: " + postId);
         System.out.println("\tisAdd: " + isAdd);
 
-        String currentUserId = userService.getLoggedInUser().getUserId();
+        String userId = postService.userService.getLoggedInUser().getUserId();
 
-        boolean actionCompleted = false;
+        boolean success;
 
         if (isAdd) {
-            actionCompleted = postService.addLike(currentUserId, postId);
+            success = postService.addLike(userId, postId);
         } else {
-            actionCompleted = postService.removeLike(currentUserId, postId);
+            success = postService.removeLike(userId, postId);
         }
 
-        if (actionCompleted) {
+        if (success) {
             return "redirect:/post/" + postId;
+        } else {
+            String message = URLEncoder.encode("Failed to (un)like the post. Please try again.",
+                    StandardCharsets.UTF_8);
+            return "redirect:/post/" + postId + "?error=" + message;
         }
-
-        String errorNote = URLEncoder.encode(
-            "Unable to update like status. Please try again later.",
-            StandardCharsets.UTF_8
-        );
-        return "redirect:/post/" + postId + "?error=" + errorNote;
     }
 
     /**

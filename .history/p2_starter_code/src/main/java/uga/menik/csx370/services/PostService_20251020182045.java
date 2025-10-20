@@ -89,44 +89,49 @@ public class PostService {
         return posts;
     }
 
-    //adds a like to a post
-    public boolean addLike(String userId, String postId) {
-        // inserts a like in sql
-        final String addLikeSql = "INSERT IGNORE INTO post_like (userId, postId) VALUES (?, ?)";
+    //new method
+    /**
+ * Adds a like (heart) from the logged-in user to a post.
+ */
+public boolean addLike(String userId, String postId) {
+    // SQL to insert a like while ignoring duplicates
+    final String addLikeSql = "INSERT IGNORE INTO post_like (userId, postId) VALUES (?, ?)";
 
-        try (Connection conn = dataSource.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(addLikeSql)) {
+    try (Connection conn = dataSource.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(addLikeSql)) {
 
-            pstmt.setString(1, userId);
-            pstmt.setString(2, postId);
+        pstmt.setString(1, userId);
+        pstmt.setString(2, postId);
 
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+        int rowsAffected = pstmt.executeUpdate();
+        return rowsAffected > 0;
 
-        } catch (SQLException e) {
-            System.out.println(e);
-            return false;
-        }
+    } catch (SQLException e) {
+        System.out.println(e);
+        return false;
     }
+}
 
-    //removes a like from a post
-    public boolean removeLike(String userId, String postId) {
-        // deletes the like - sql
-        final String removeLikeSql = "DELETE FROM post_like WHERE userId = ? AND postId = ?";
+/**
+ * Removes a like (heart) from the logged-in user on a post.
+ */
+public boolean removeLike(String userId, String postId) {
+    // SQL to delete the like record
+    final String removeLikeSql = "DELETE FROM post_like WHERE userId = ? AND postId = ?";
 
-        try (Connection conn = dataSource.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(removeLikeSql)) {
+    try (Connection conn = dataSource.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(removeLikeSql)) {
 
-            pstmt.setString(1, userId);
-            pstmt.setString(2, postId);
+        pstmt.setString(1, userId);
+        pstmt.setString(2, postId);
 
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+        int rowsAffected = pstmt.executeUpdate();
+        return rowsAffected > 0;
 
-        } catch (SQLException e) {
-            System.out.println(e);
-            return false;
-        }
+    } catch (SQLException e) {
+        System.out.println(e);
+        return false;
     }
+}
 
 }

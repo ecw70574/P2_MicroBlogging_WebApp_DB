@@ -111,7 +111,7 @@ public class PostService {
 
     //removes a like from a post
     public boolean removeLike(String userId, String postId) {
-        // deletes the like - sql
+        // SQL to delete the like record
         final String removeLikeSql = "DELETE FROM post_like WHERE userId = ? AND postId = ?";
 
         try (Connection conn = dataSource.getConnection();

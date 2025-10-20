@@ -35,7 +35,7 @@ public class PostController {
     private PostService postService;
     
     @Autowired
-    private UserService userService;
+private UserService userService;
 
     /**
      * This function handles the /post/{postId} URL.
@@ -107,7 +107,7 @@ public class PostController {
         System.out.println("\tpostId: " + postId);
         System.out.println("\tisAdd: " + isAdd);
 
-        String currentUserId = userService.getLoggedInUser().getUserId();
+        String currentUserId = postService.userService.getLoggedInUser().getUserId();
 
         boolean actionCompleted = false;
 
