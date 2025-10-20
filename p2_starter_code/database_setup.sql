@@ -45,6 +45,6 @@ create table if not exists bookmark (
    postId int auto_increment,
    primary key (userId, postId)
    foreign key (userId) references user(userId) on delete cascade,
-   foreign key (postId) references post(userId) on delete cascade
+   foreign key (postId) references post(postId) on delete cascade
 );
 
