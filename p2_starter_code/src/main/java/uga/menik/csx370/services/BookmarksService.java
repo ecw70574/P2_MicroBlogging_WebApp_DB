@@ -69,7 +69,11 @@ public class BookmarksService {
      */
     public List<Post> getBookMarked(User user) throws SQLException {
         // joining post and bookmarks to get the posts that have been bookmarked
-        final String getBookMarkedSql = "select p.postId, p.content, p.postDate from bookmark b join post p on p.postId = b.postId where b.userId = ?";
+        final String getBookMarkedSql = "select p.postId, p.content, p.postDate, u.userID, u.firstName, u.lastName" +
+        "from bookmark b" +
+        "join post p on p.postId = b.postId" +  
+        "join user u on u.userId = p.userId" +
+        "where b.userId = ?";
 
         List<Post> posts = new ArrayList<>();
 

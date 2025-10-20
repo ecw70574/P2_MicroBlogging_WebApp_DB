@@ -39,3 +39,12 @@ CREATE TABLE post (
     isHearted BOOLEAN DEFAULT FALSE,
     isBookmarked BOOLEAN DEFAULT FALSE
 );
+
+create table if not exists bookmark (
+   userId int auto_increment,
+   postId int auto_increment,
+   primary key (userId, postId)
+   foreign key (userId) references user(userId) on delete cascade,
+   foreign key (postId) references post(userId) on delete cascade
+);
+
