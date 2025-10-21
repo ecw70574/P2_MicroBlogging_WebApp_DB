@@ -17,11 +17,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import java.sql.SQLException;
 
 import uga.menik.csx370.models.ExpandedPost;
 import uga.menik.csx370.services.PostService;
 import uga.menik.csx370.services.UserService;
+import uga.menik.csx370.services.BookmarksService;
 import uga.menik.csx370.utility.Utility;
+import uga.menik.csx370.models.User;
 
 
 /**
@@ -36,6 +39,9 @@ public class PostController {
     
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private BookmarksService bookmarkService;
 
     /**
      * This function handles the /post/{postId} URL.
@@ -137,9 +143,38 @@ public class PostController {
     @GetMapping("/{postId}/bookmark/{isAdd}")
     public String addOrRemoveBookmark(@PathVariable("postId") String postId,
             @PathVariable("isAdd") Boolean isAdd) {
+	String action = "";
         System.out.println("The user is attempting add or remove a bookmark:");
+	if (isAdd) {
+	    action = "add";
+	} else {
+	    action = "remove";
+	}
+	System.out.println("The user is attempting to " + action + " a bookmark:");
         System.out.println("\tpostId: " + postId);
         System.out.println("\tisAdd: " + isAdd);
+
+	boolean actionCompleted = false;
+
+	
+	// add or remove bookmark depending on boolean. do we need to inject a bookmark svc?
+
+	try{
+	    
+
+	    User currentUser = userService.getLoggedInUser();
+	    if (isAdd) {
+		actionCompleted = bookmarkService.addBookmark(currentUser, postId);
+	    } else {
+		actionCompleted = bookmarkService.removeBookmark(currentUser, postId);
+	    }
+	    if (actionCompleted){
+		return "redirect:/post/" + postId;
+	    }
+	} catch (SQLException e){
+	    e.printStackTrace();
+	}
+	
 
         // Redirect the user if the comment adding is a success.
         // return "redirect:/post/" + postId;

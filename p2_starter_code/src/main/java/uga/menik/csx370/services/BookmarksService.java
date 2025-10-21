@@ -43,7 +43,10 @@ public class BookmarksService {
 
             int rowsAffected = postStmt.executeUpdate();
             return rowsAffected > 0;
-        }
+        } catch (SQLException e){
+	    e.printStackTrace();
+	    return false;
+	}
     }
 
     /*
@@ -61,7 +64,11 @@ public class BookmarksService {
 
             int rowsAffected = removeStmt.executeUpdate();
             return rowsAffected > 0;
+        } catch (SQLException e){
+            e.printStackTrace();
+            return false;
         }
+
     }
 
     /*
@@ -69,10 +76,10 @@ public class BookmarksService {
      */
     public List<Post> getBookMarked(User user) throws SQLException {
         // joining post and bookmarks to get the posts that have been bookmarked
-        final String getBookMarkedSql = "select p.postId, p.content, p.postDate, u.userID, u.firstName, u.lastName" +
-        "from bookmark b" +
-        "join post p on p.postId = b.postId" +  
-        "join user u on u.userId = p.userId" +
+        final String getBookMarkedSql = "select p.postId, p.content, p.postDate, u.userID, u.firstName, u.lastName " +
+        "from bookmark b " +
+        "join post p on p.postId = b.postId " +  
+        "join user u on u.userId = p.userId " +
         "where b.userId = ?";
 
         List<Post> posts = new ArrayList<>();
@@ -101,7 +108,10 @@ public class BookmarksService {
                     posts.add(post);
                 } 
             } // try
-        } 
+        } catch (SQLException e){
+	    e.printStackTrace();
+	}
+	
         return posts;
     }
 

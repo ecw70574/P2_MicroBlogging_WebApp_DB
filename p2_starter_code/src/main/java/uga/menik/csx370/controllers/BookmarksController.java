@@ -22,6 +22,9 @@ import uga.menik.csx370.services.HashtagService;
 import uga.menik.csx370.services.PeopleService;
 import uga.menik.csx370.services.UserService;
 import uga.menik.csx370.utility.Utility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Handles /bookmarks and its sub URLs.
@@ -38,6 +41,7 @@ public class BookmarksController {
     private final BookmarksService bookmarksService;
     private final PeopleService peopleService;
     private final UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(BookmarksController.class);
 
     @Autowired
     public BookmarksController(PeopleService peopleService, UserService userService, BookmarksService bookmarksService) {
@@ -68,8 +72,10 @@ public class BookmarksController {
                 mv.addObject("posts", posts); // object not empy 
             }
         } catch (SQLException e) {
-            String errorMessage = "Some error occurred!";
-            mv.addObject("errorMessage", errorMessage);
+	    logger.error("Database error occurred", e);
+	    mv.addObject("errorMessage", "A database error occurred. Please try again later.");
+	    //            String errorMessage = "Some error occurred!";
+	    //            mv.addObject("errorMessage", errorMessage);
         }
         
 
