@@ -271,39 +271,40 @@ public class PostService {
 
 
     //adds a like to a post
-    public boolean addLike(String userId, String postId) {
-        String sql = "insert ignore into post_like (user_id, post_id) values (?, ?)";
+ public boolean addLike(String userId, String postId) {
+    String sql = "insert ignore into post_like (user_id, post_id) values (?, ?)";
 
-        try (Connection conn = dataSource.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+    try (Connection conn = dataSource.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, userId);
-            stmt.setString(2, postId);
+        stmt.setString(1, userId);
+        stmt.setString(2, postId);
 
-            int rows = stmt.executeUpdate();
-            return rows > 0;
+        int rows = stmt.executeUpdate();
+        return rows > 0;
 
-        } catch (SQLException e) {
-            System.out.println("error adding like: " + e.getMessage());
-            return false;
-        }
+    } catch (SQLException e) {
+        System.out.println("error adding like: " + e.getMessage());
+        return false;
     }
+}
 
-        //removes a like from a post
+    //removes a like from a post
     public boolean removeLike(String userId, String postId) {
-        String sql = "delete from post_like where user_id = ? and post_id = ?";
+        // deletes the like - sql
+        final String removeLikeSql = "DELETE FROM post_like WHERE userId = ? AND postId = ?";
 
         try (Connection conn = dataSource.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(removeLikeSql)) {
 
-            stmt.setString(1, userId);
-            stmt.setString(2, postId);
+            pstmt.setString(1, userId);
+            pstmt.setString(2, postId);
 
-            int rows = stmt.executeUpdate();
-            return rows > 0;
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
 
         } catch (SQLException e) {
-            System.out.println("error removing like: " + e.getMessage());
+            System.out.println(e);
             return false;
         }
     }

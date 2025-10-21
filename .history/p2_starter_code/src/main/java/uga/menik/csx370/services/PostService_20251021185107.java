@@ -290,7 +290,7 @@ public class PostService {
     }
 
         //removes a like from a post
-    public boolean removeLike(String userId, String postId) {
+        public boolean removeLike(String userId, String postId) {
         String sql = "delete from post_like where user_id = ? and post_id = ?";
 
         try (Connection conn = dataSource.getConnection();

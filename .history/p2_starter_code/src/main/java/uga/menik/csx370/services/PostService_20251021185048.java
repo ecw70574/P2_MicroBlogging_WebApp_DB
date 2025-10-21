@@ -289,24 +289,24 @@ public class PostService {
         }
     }
 
-        //removes a like from a post
+    //removes a like from a post
     public boolean removeLike(String userId, String postId) {
-        String sql = "delete from post_like where user_id = ? and post_id = ?";
+    String sql = "delete from post_like where user_id = ? and post_id = ?";
 
-        try (Connection conn = dataSource.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+    try (Connection conn = dataSource.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, userId);
-            stmt.setString(2, postId);
+        stmt.setString(1, userId);
+        stmt.setString(2, postId);
 
-            int rows = stmt.executeUpdate();
-            return rows > 0;
+        int rows = stmt.executeUpdate();
+        return rows > 0;
 
-        } catch (SQLException e) {
-            System.out.println("error removing like: " + e.getMessage());
-            return false;
-        }
+    } catch (SQLException e) {
+        System.out.println("error removing like: " + e.getMessage());
+        return false;
     }
+}
 
     //Example use:
     //    posts.set(helpPost(rs, 0, 0, false, false));

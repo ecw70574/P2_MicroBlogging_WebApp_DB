@@ -289,21 +289,22 @@ public class PostService {
         }
     }
 
-        //removes a like from a post
+    //removes a like from a post
     public boolean removeLike(String userId, String postId) {
-        String sql = "delete from post_like where user_id = ? and post_id = ?";
+        // deletes the like - sql
+        final String removeLikeSql = "DELETE FROM post_like WHERE userId = ? AND postId = ?";
 
         try (Connection conn = dataSource.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(removeLikeSql)) {
 
-            stmt.setString(1, userId);
-            stmt.setString(2, postId);
+            pstmt.setString(1, userId);
+            pstmt.setString(2, postId);
 
-            int rows = stmt.executeUpdate();
-            return rows > 0;
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
 
         } catch (SQLException e) {
-            System.out.println("error removing like: " + e.getMessage());
+            System.out.println(e);
             return false;
         }
     }

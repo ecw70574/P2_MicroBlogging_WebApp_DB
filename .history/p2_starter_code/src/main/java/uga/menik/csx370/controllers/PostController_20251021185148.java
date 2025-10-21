@@ -122,26 +122,26 @@ public class PostController {
      * get type form submissions and how path variables work.
      */
     @GetMapping("/{postId}/heart/{isAdd}")
-    public String handleHeartAction(@PathVariable("postId") String postId,
-                                    @PathVariable("isAdd") boolean isAdd) {
-        System.out.println("heart action -> post: " + postId + ", add: " + isAdd);
+public String handleHeartAction(@PathVariable("postId") String postId,
+                                @PathVariable("isAdd") boolean isAdd) {
+    System.out.println("heart action -> post: " + postId + ", add: " + isAdd);
 
-        String loggedUser = userService.getLoggedInUser().getUserId();
-        boolean done;
+    String loggedUser = userService.getLoggedInUser().getUserId();
+    boolean done;
 
-        if (isAdd) {
-            done = postService.addLike(loggedUser, postId);
-        } else {
-            done = postService.removeLike(loggedUser, postId);
-        }
-
-        if (done) {
-            return "redirect:/post/" + postId;
-        }
-
-        String err = URLEncoder.encode("couldn't update like, try again.", StandardCharsets.UTF_8);
-        return "redirect:/post/" + postId + "?error=" + err;
+    if (isAdd) {
+        done = postService.addLike(loggedUser, postId);
+    } else {
+        done = postService.removeLike(loggedUser, postId);
     }
+
+    if (done) {
+        return "redirect:/post/" + postId;
+    }
+
+    String err = URLEncoder.encode("couldn't update like, try again.", StandardCharsets.UTF_8);
+    return "redirect:/post/" + postId + "?error=" + err;
+}
 
 
 

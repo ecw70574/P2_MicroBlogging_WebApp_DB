@@ -122,27 +122,32 @@ public class PostController {
      * get type form submissions and how path variables work.
      */
     @GetMapping("/{postId}/heart/{isAdd}")
-    public String handleHeartAction(@PathVariable("postId") String postId,
-                                    @PathVariable("isAdd") boolean isAdd) {
-        System.out.println("heart action -> post: " + postId + ", add: " + isAdd);
+    public String addOrRemoveHeart(@PathVariable("postId") String postId,
+            @PathVariable("isAdd") Boolean isAdd) {
+        System.out.println("The user is attempting add or remove a heart:");
+        System.out.println("\tpostId: " + postId);
+        System.out.println("\tisAdd: " + isAdd);
 
-        String loggedUser = userService.getLoggedInUser().getUserId();
-        boolean done;
+        String currentUserId = userService.getLoggedInUser().getUserId();
+
+        boolean actionCompleted = false;
 
         if (isAdd) {
-            done = postService.addLike(loggedUser, postId);
+            actionCompleted = postService.addLike(currentUserId, postId);
         } else {
-            done = postService.removeLike(loggedUser, postId);
+            actionCompleted = postService.removeLike(currentUserId, postId);
         }
 
-        if (done) {
+        if (actionCompleted) {
             return "redirect:/post/" + postId;
         }
 
-        String err = URLEncoder.encode("couldn't update like, try again.", StandardCharsets.UTF_8);
-        return "redirect:/post/" + postId + "?error=" + err;
+        String errorNote = URLEncoder.encode(
+            "Unable to update like status. Please try again later.",
+            StandardCharsets.UTF_8
+        );
+        return "redirect:/post/" + postId + "?error=" + errorNote;
     }
-
 
 
 
