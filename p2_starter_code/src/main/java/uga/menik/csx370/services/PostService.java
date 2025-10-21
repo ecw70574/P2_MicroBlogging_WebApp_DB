@@ -22,11 +22,9 @@ import uga.menik.csx370.models.User;
 public class PostService {
 
     private final DataSource dataSource;
-    private final UserService userService;
 
-    public PostService(DataSource dataSource, UserService userService) {
+    public PostService(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.userService = userService;
     }
 
     
@@ -52,41 +50,82 @@ public class PostService {
 
     /**
      * This function should query and return all posts.
-     * @return
+     * @return posts 
      * @throws SQLException
      */
-
-
     public List<Post> getPosts() throws SQLException {
         List<Post> posts = new ArrayList<>();
 
-        final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName from post p join user u on p.userId = u.userId" ;
+        final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
+        "from post p join user u on p.userId = u.userId order by p.postDate desc" ;
 
         try(Connection conn = dataSource.getConnection();
-        PreparedStatement postStmt = conn.prepareStatement(getPostSql); //passes sql query
+        PreparedStatement postStmt = conn.prepareStatement(getPostSql)) { //passes sql query
 
-        
-        ResultSet rs = postStmt.executeQuery()) {
-            while (rs.next()) {
-                User user = new User(
-                    rs.getString("userId"), 
-                    rs.getString("firstName"), 
-                    rs.getString("lastName")
+            try(ResultSet rs = postStmt.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User(
+                        rs.getString("userId"),
+                        rs.getString("firstName"),
+                        rs.getString("lastName")
+                        );
+                    Post post = new Post(
+                        rs.getString("postId"),
+                        rs.getString("content"),
+                        rs.getTimestamp("postDate").toString(),
+                        user,
+                        0,
+                        0,
+                        false,
+                        false
                     );
-                Post post = new Post(
-                    rs.getString("postId"),
-                    rs.getString("content"),
-                    rs.getTimestamp("postDate").toString(),
-                    user,
-                    0,
-                    0,
-                    false,
-                    false
-                );
-                posts.add(post);
+                    posts.add(post);
+                }
             }
         }
         return posts;
     }
+
+
+/**
+     * This function should query and return all from the specified userposts.
+     * @return the posts
+     * @throws SQLException
+     */
+    public List<Post> getUserPosts(String userId) throws SQLException {
+        List<Post> posts = new ArrayList<>();
+
+        final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
+        "from post p join user u on p.userId = u.userId where p.userId = ? order by p.postDate desc" ;
+
+        try(Connection conn = dataSource.getConnection();
+        PreparedStatement postStmt = conn.prepareStatement(getPostSql)) {//passes sql query
+            postStmt.setString(1, userId);
+        
+            try(ResultSet rs = postStmt.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User(
+                        rs.getString("userId"),
+                        rs.getString("firstName"),
+                        rs.getString("lastName")
+                        );
+                    Post post = new Post(
+                        rs.getString("postId"),
+                        rs.getString("content"),
+                        rs.getTimestamp("postDate").toString(),
+                        user,
+                        0,
+                        0,
+                        false,
+                        false
+                    );
+                    posts.add(post);
+                }
+            }
+        }
+        return posts;
+    }
+
+
 
 }

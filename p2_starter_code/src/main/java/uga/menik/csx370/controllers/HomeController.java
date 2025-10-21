@@ -10,8 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,10 +34,8 @@ public class HomeController {
     @Autowired
     private PostService postService;
     private final UserService userService;
-    private final DataSource dataSource;
 
-    public HomeController(DataSource dataSource, UserService userService) {
-        this.dataSource = dataSource;
+    public HomeController(UserService userService) {
         this.userService = userService;
     }
     /**
