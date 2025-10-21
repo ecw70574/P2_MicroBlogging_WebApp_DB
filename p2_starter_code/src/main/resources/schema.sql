@@ -5,13 +5,15 @@
 -- use csx370_mb_platform;
 
 -- Create the user table.
+
+-- ALTER TABLE user ADD lastActiveDate VARCHAR(50) not null;
+
 create table if not exists user (
     userId int auto_increment primary key,
     username varchar(255) not null unique,
     password varchar(255) not null,
     firstName varchar(255) not null,
     lastName varchar(255) not null,
-    lastActiveDate VARCHAR(50) not null
     -- primary key (userId),
     -- unique (username),
     -- constraint userName_min_length check (char_length(trim(username)) >= 2),
