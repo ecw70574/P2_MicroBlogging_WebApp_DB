@@ -72,7 +72,7 @@ public class PostController {
 	try {
 	    
 	    List<Post> posts = postService.getPosts();
-        
+
 	    if (posts.isEmpty()) {
 		mv.addObject("isNoContent",true);
 	    } else {
@@ -182,9 +182,9 @@ public class PostController {
 	    } else {
 		actionCompleted = bookmarkService.removeBookmark(currentUser, postId);
 	    }
-	    if (actionCompleted){
-		return "redirect:/post/" + postId;
-	    }
+	    //if (actionCompleted){
+		//return "redirect:/post/" + postId;
+	    // }
 	} catch (SQLException e){
 	    e.printStackTrace();
 	}
