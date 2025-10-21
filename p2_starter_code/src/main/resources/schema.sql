@@ -37,3 +37,12 @@ CREATE TABLE if not exists post(
     isBookmarked BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (userId) REFERENCES user(userId) on delete cascade
 );
+
+
+CREATE TABLE if not exists bookmark(
+    userId INT, 
+    postId INT,
+    primary key (userId, postId),
+    foreign key (userId) references user(userId) on delete cascade,
+    foreign key (postId) references post(postId) on delete cascade
+);
