@@ -139,8 +139,7 @@ public class PostService {
             }
         }
 
-'''
-
+/*
 
         final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
         "from post p join user u on p.userId = u.userId order by p.postDate desc" ;
@@ -174,7 +173,7 @@ public class PostService {
                 }
             }
         }
-'''
+*/
         return posts;
     }
 
