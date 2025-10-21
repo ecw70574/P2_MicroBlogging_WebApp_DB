@@ -30,6 +30,11 @@ public class User {
      */
     private final String profileImagePath;
 
+    /** Path of the last active date for the user
+     * 
+    */
+    private final String lastActiveDate;
+
     /**
      * Constructs a User with specified details.
      *
@@ -37,12 +42,14 @@ public class User {
      * @param firstName        the first name of the user
      * @param lastName         the last name of the user
      * @param profileImagePath the path of the profile image file for the user
+     * @param lastActiveDate   the last log-in date of the user
      */
-    public User(String userId, String firstName, String lastName, String profileImagePath) {
+    public User(String userId, String firstName, String lastName, String profileImagePath, String lastActiveDate) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.profileImagePath = profileImagePath;
+        this.lastActiveDate = lastActiveDate;
     }
 
     /**
@@ -52,9 +59,10 @@ public class User {
      * @param firstName        the first name of the user
      * @param lastName         the last name of the user
      * @param profileImagePath the path of the profile image file for the user
+     * @param lastActiveDate   the last log-in date of the user
      */
-    public User(String userId, String firstName, String lastName) {
-        this(userId, firstName, lastName, getAvatarPath(userId));
+    public User(String userId, String firstName, String lastName, String lastActiveDate) {
+        this(userId, firstName, lastName, getAvatarPath(userId), lastActiveDate);
     }
 
     /**
@@ -100,5 +108,14 @@ public class User {
      */
     public String getProfileImagePath() {
         return profileImagePath;
+    }
+
+    /**
+     * Returns the lastActiveDate for the user.
+     *
+     * @return the lastActiveDate
+     */
+    public String getLastActiveDate() {
+        return lastActiveDate;
     }
 }

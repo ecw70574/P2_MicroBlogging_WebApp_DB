@@ -65,7 +65,7 @@ public class PostService {
 
         User this_user = userService.getLoggedInUser();
         String logged_in_userId = this_user.getUserId();
-        final String bookmarked_posts = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
+        final String bookmarked_posts = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName, u.lastActiveDate " + 
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
             "WHERE p.postId IN ( " +
@@ -105,7 +105,7 @@ public class PostService {
         }
 
 
-        final String not_bookmarked_posts = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
+        final String not_bookmarked_posts = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName, u.lastActiveDate " + 
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
             "WHERE p.postId NOT IN ( " +
@@ -185,7 +185,7 @@ public class PostService {
     public List<Post> getPostById(String postId) throws SQLException {
         List<Post> posts = new ArrayList<>();
 
-        final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
+        final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName, u.lastActiveDate " +
         "from post p join user u on p.userId = u.userId where p.postId = ?" ;
 
         try(Connection conn = dataSource.getConnection();
@@ -231,7 +231,7 @@ public class PostService {
      */
     public List<Post> getUserPosts(String userId) throws SQLException {
         List<Post> posts = new ArrayList<>();
-        final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
+        final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName, u.lastActiveDate " +
         "from post p join user u on p.userId = u.userId where p.userId = ? order by p.postDate desc" ;
 
         try(Connection conn = dataSource.getConnection();
@@ -313,10 +313,15 @@ public class PostService {
     //Example use:
     //    posts.set(helpPost(rs, 0, 0, false, false));
     public Post helpPost(ResultSet rs, int heartsCount, int commentsCount, boolean isHearted, boolean isBookmarked) throws SQLException {
+        Timestamp currentUTCActiveDate = rs.getTimestamp("lastActiveDate"); //get timestamp in utc
+        //convert to Eastern time: -4 hours
+        LocalDateTime correctedEasterndateTimeActiveDate = currentUTCActiveDate.toLocalDateTime().minusHours(4);
+                    
         User user = new User(
             rs.getString("userId"),
             rs.getString("firstName"),
-            rs.getString("lastName")
+            rs.getString("lastName"),
+            correctedEasterndateTimeActiveDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a"))            
         );
 
         Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc

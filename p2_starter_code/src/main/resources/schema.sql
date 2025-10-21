@@ -10,7 +10,8 @@ create table if not exists user (
     username varchar(255) not null unique,
     password varchar(255) not null,
     firstName varchar(255) not null,
-    lastName varchar(255) not null
+    lastName varchar(255) not null,
+    lastActiveDate VARCHAR(50) not null
     -- primary key (userId),
     -- unique (username),
     -- constraint userName_min_length check (char_length(trim(username)) >= 2),

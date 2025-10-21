@@ -9,6 +9,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.sql.DataSource;
 
@@ -70,13 +73,18 @@ public class UserService {
                     String storedPasswordHash = rs.getString("password");
                     boolean isPassMatch = passwordEncoder.matches(password, storedPasswordHash);
                     // Note: 
+                    
+                    Timestamp currentUTCActiveDate = rs.getTimestamp("lastActiveDate"); //get timestamp in utc
+                    //convert to Eastern time: -4 hours
+                    LocalDateTime correctedEasterndateTimeActiveDate = currentUTCActiveDate.toLocalDateTime().minusHours(4);
+        
                     if (isPassMatch) {
                         String userId = rs.getString("userId");
                         String firstName = rs.getString("firstName");
                         String lastName = rs.getString("lastName");
 
                         // Initialize and retain the logged in user.
-                        loggedInUser = new User(userId, firstName, lastName);
+                        loggedInUser = new User(userId, firstName, lastName, correctedEasterndateTimeActiveDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")));
                     }
                     return isPassMatch;
                 }

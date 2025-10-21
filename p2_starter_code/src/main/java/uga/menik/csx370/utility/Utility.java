@@ -25,11 +25,11 @@ public class Utility {
     }
 
     public static List<Post> createSamplePostsListWithoutComments() {
-        User user1 = new User("1", "John", "Doe");
-        User user2 = new User("2", "Jane", "Doe");
-        User user3 = new User("3", "Alice", "Smith");
-        User user4 = new User("4", "Bob", "Brown");
-        User user5 = new User("5", "Charlie", "Green");
+        User user1 = new User("1", "John", "Doe", "Mar 05, 2024, 11:00 AM");
+        User user2 = new User("2", "Jane", "Doe", "Mar 05, 2024, 11:00 AM");
+        User user3 = new User("3", "Alice", "Smith", "Mar 05, 2024, 11:00 AM");
+        User user4 = new User("4", "Bob", "Brown", "Mar 05, 2024, 11:00 AM");
+        User user5 = new User("5", "Charlie", "Green", "Mar 05, 2024, 11:00 AM");
         List<Post> postsWithoutComments = new ArrayList<>();
         postsWithoutComments.add(new Post("1", "Exploring Spring Boot features",
                 "Mar 07, 2024, 10:54 PM", user1, 10, 4, false, false));
@@ -41,11 +41,11 @@ public class Utility {
     }
 
     public static List<ExpandedPost> createSampleExpandedPostWithComments() {
-        User user1 = new User("1", "John", "Doe");
-        User user2 = new User("2", "Jane", "Doe");
-        User user3 = new User("3", "Alice", "Smith");
-        User user4 = new User("4", "Bob", "Brown");
-        User user5 = new User("5", "Charlie", "Green");
+        User user1 = new User("1", "John", "Doe", "Mar 05, 2024, 11:00 AM");
+        User user2 = new User("2", "Jane", "Doe", "Mar 05, 2024, 11:00 AM");
+        User user3 = new User("3", "Alice", "Smith", "Mar 05, 2024, 11:00 AM");
+        User user4 = new User("4", "Bob", "Brown", "Mar 05, 2024, 11:00 AM");
+        User user5 = new User("5", "Charlie", "Green", "Mar 05, 2024, 11:00 AM");
         List<Comment> commentsForPost = new ArrayList<>();
 
         commentsForPost.add(new Comment("1", "Great insights, thanks for sharing!", 

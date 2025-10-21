@@ -34,7 +34,7 @@ public class FollowableUser extends User {
      */
     public FollowableUser(String userId, String firstName, String lastName, String profileImageName,
             boolean isFollowed, String lastActiveDate) {
-        super(userId, firstName, lastName, profileImageName);
+        super(userId, firstName, lastName, profileImageName, lastActiveDate);
         this.isFollowed = isFollowed;
         this.lastActiveDate = lastActiveDate;
     }
@@ -51,7 +51,7 @@ public class FollowableUser extends User {
      */
     public FollowableUser(String userId, String firstName, String lastName,
             boolean isFollowed, String lastActiveDate) {
-        super(userId, firstName, lastName);
+        super(userId, firstName, lastName, lastActiveDate);
         this.isFollowed = isFollowed;
         this.lastActiveDate = lastActiveDate;
     }

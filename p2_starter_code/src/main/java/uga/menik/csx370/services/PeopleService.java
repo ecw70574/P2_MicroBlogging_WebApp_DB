@@ -37,7 +37,7 @@ public class PeopleService {
      */
     public List<FollowableUser> getFollowableUsers(String userIdToExclude) {
         // Write an SQL query to find the users that are not the current user.
-        final String followableSql = "SELECT userID, firstName, lastName FROM user WHERE userId <> ?"; //creates sql query 
+        final String followableSql = "SELECT userID, firstName, lastName, lastActiveDate FROM user WHERE userId <> ?"; //creates sql query 
         // how to create a list of FollowableUsers
         List<FollowableUser> followableUsers = new ArrayList<>();
         // Run the query with a datasource.        

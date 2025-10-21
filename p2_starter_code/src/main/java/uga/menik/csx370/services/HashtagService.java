@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +49,7 @@ public class HashtagService {
             } 
         }
 
-        String getPostSql = "select p.postId, p.content, p.postDate, u.userID, u.firstName, u.lastName " + 
+        String getPostSql = "select p.postId, p.content, p.postDate, u.userID, u.firstName, u.lastName, u.lastActiveDate " + 
                                 "from post AS p, user AS u " + 
                                 "where p.userId = u.userId and (" ;
         
@@ -76,10 +79,15 @@ public class HashtagService {
 
             try (ResultSet rs = hashtStmt.executeQuery()) {
                 while (rs.next()) {
+                    Timestamp currentUTCActiveDate = rs.getTimestamp("lastActiveDate"); //get timestamp in utc
+                    //convert to Eastern time: -4 hours
+                    LocalDateTime correctedEasterndateTimeActiveDate = currentUTCActiveDate.toLocalDateTime().minusHours(4);
+
                     User user = new User(
                         rs.getString("userId"), 
                         rs.getString("firstName"), 
-                        rs.getString("lastName")
+                        rs.getString("lastName"),
+                        correctedEasterndateTimeActiveDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a"))
                         );
                     Post post = new Post(
                         rs.getString("postId"),

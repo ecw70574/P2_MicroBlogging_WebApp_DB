@@ -134,7 +134,7 @@ public class BookmarksService {
      */
     public List<Post> getBookMarked(User user) throws SQLException {
         // joining post and bookmarks to get the posts that have been bookmarked
-        final String getBookMarkedSql = "select p.postId, b.authorId, p.content, p.postDate, u.firstName as authorFN, u.lastName as authorLN " +
+        final String getBookMarkedSql = "select p.postId, b.authorId, p.content, p.postDate, u.firstName as authorFN, u.lastName as authorLN, u.lastActiveDate" +
         "from bookmark b " +
         "join post p on p.postId = b.postId " +  
         "join user u on u.userId = b.authorId " +
@@ -148,11 +148,15 @@ public class BookmarksService {
             
             try (ResultSet rs = getBookedStmt.executeQuery()) {
                 while (rs.next()) {
-
+                    Timestamp currentUTCActiveDate = rs.getTimestamp("lastActiveDate"); //get timestamp in utc
+                    //convert to Eastern time: -4 hours
+                    LocalDateTime correctedEasterndateTimeActiveDate = currentUTCActiveDate.toLocalDateTime().minusHours(4);
+                    
                     User postAuthor = new User(
                         rs.getString("authorId"), 
                         rs.getString("authorFN"), 
-                        rs.getString("authorLN")
+                        rs.getString("authorLN"),
+                        correctedEasterndateTimeActiveDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a"))
                         );
 
                     Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
