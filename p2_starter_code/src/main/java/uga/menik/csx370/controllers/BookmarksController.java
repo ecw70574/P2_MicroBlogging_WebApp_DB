@@ -34,10 +34,17 @@ import uga.menik.csx370.utility.Utility;
 @RequestMapping("/bookmarks")
 public class BookmarksController {
 
+    
+    private final BookmarksService bookmarksService;
+    private final PeopleService peopleService;
+    private final UserService userService;
+
     @Autowired
-    private BookmarksService bookmarksService;
-    private PeopleService peopleService;
-    private UserService userService;
+    public BookmarksController(PeopleService peopleService, UserService userService, BookmarksService bookmarksService) {
+        this.peopleService = peopleService;
+        this.userService = userService; 
+        this.bookmarksService = bookmarksService;
+    }
 
     /**
      * /bookmarks URL itself is handled by this.
