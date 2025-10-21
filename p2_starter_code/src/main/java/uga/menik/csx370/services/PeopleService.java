@@ -40,7 +40,7 @@ public class PeopleService {
         List<FollowableUser> followableUsers = new ArrayList<>();
 
         // get the users that we do follow - sql query 
-        final String doesfollowSql = "SELECT f.followeeId, u.firstName, u.lastName " + 
+        final String doesfollowSql = "SELECT u.userId, u.firstName, u.lastName " + 
         "FROM user u join follow f " +
         "on u.userId = f.followeeId " + 
         "WHERE f.followeeId <> ? and f.followerId = ?"; // the logged in user is always the follower and never the followee
@@ -77,7 +77,7 @@ public class PeopleService {
         // users that we dont follow
         final String doesNotfollowSql = "SELECT u.userId, u.firstName, u.lastName " + 
         "FROM user u " +
-        "on u.user_id = f.followeeId " + 
+        "on u.userId = f.followeeId " + 
         "WHERE u.userId NOT IN ( " +
         "SELECT f.followeeId FROM follow f WHERE f.followerId = ?) " +
         "and f.followeeId <> ? "; // the logged in user is always the follower and never the followee
