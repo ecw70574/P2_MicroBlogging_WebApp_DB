@@ -42,7 +42,7 @@ CREATE TABLE if not exists post(
 CREATE TABLE if not exists bookmark(
     userId INT, 
     postId INT,
-    authorId INT,
+    authorId INT not null,
     primary key (userId, postId),
     foreign key (userId) references user(userId) on delete cascade,
     foreign key (postId) references post(postId) on delete cascade,

@@ -34,13 +34,11 @@ public class BookmarksService {
      */
     public boolean addBookmark(User user, String postId) throws SQLException {
         final String getAuthor = "select p.userId from post p where p.postId = ?";
-
-
         // run author query first
         String authorId = null;
 
         try (Connection conn = dataSource.getConnection(); //establish connection with database
-            authorStmt = conn.prepareStatement(getAuthor)) { //passes sql query
+            PreparedStatement authorStmt = conn.prepareStatement(getAuthor)) { //passes sql query
             authorStmt.setString(1, postId);
             ResultSet rs = authorStmt.executeQuery();
             // whose post is this

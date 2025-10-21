@@ -144,7 +144,6 @@ public class PostController {
     public String addOrRemoveBookmark(@PathVariable("postId") String postId,
             @PathVariable("isAdd") Boolean isAdd) {
 	String action = "";
-        System.out.println("The user is attempting add or remove a bookmark:");
 	if (isAdd) {
 	    action = "add";
 	} else {
@@ -160,8 +159,6 @@ public class PostController {
 	// add or remove bookmark depending on boolean. do we need to inject a bookmark svc?
 
 	try{
-	    
-
 	    User currentUser = userService.getLoggedInUser();
 	    if (isAdd) {
 		actionCompleted = bookmarkService.addBookmark(currentUser, postId);
