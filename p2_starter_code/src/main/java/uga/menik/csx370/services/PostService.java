@@ -65,7 +65,7 @@ public class PostService {
 
         User this_user = userService.getLoggedInUser();
         String logged_in_userId = this_user.getUserId();
-        final bookmarked_posts = "SELECT p.postId, p.content, p.userId, u.firstName, u.lastName " + 
+        final String bookmarked_posts = "SELECT p.postId, p.content, p.userId, u.firstName, u.lastName " + 
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
             "WHERE p.postId IN ( " +
@@ -102,7 +102,7 @@ public class PostService {
         }
 
 
-        final not_bookmarked_posts = "SELECT p.postId, p.content, p.userId, u.firstName, u.lastName " + 
+        final String not_bookmarked_posts = "SELECT p.postId, p.content, p.userId, u.firstName, u.lastName " + 
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
             "WHERE p.postId IN ( " +
