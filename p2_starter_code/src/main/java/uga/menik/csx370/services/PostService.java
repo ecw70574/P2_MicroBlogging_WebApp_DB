@@ -65,7 +65,7 @@ public class PostService {
 
         User this_user = userService.getLoggedInUser();
         String logged_in_userId = this_user.getUserId();
-        final String bookmarked_posts = "SELECT p.postId, p.content, p.userId, u.firstName, u.lastName " + 
+        final String bookmarked_posts = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
             "WHERE p.postId IN ( " +
@@ -103,7 +103,7 @@ public class PostService {
         }
 
 
-        final String not_bookmarked_posts = "SELECT p.postId, p.content, p.userId, u.firstName, u.lastName " + 
+        final String not_bookmarked_posts = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
             "WHERE p.postId NOT IN ( " +
@@ -139,7 +139,7 @@ public class PostService {
             }
         }
 
-'''
+/*
 
 
         final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
@@ -174,7 +174,7 @@ public class PostService {
                 }
             }
         }
-'''
+*/
         return posts;
     }
 
@@ -239,10 +239,15 @@ public class PostService {
                         rs.getString("firstName"),
                         rs.getString("lastName")
                         );
+
+                    Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
+                    //convert to Eastern time: -4 hours
+                    LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
+                    
                     Post post = new Post(
                         rs.getString("postId"),
                         rs.getString("content"),
-                        rs.getTimestamp("postDate").toString(),
+                        correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
                         user,
                         0,
                         0,
