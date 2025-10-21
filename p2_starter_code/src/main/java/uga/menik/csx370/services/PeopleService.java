@@ -53,6 +53,7 @@ public class PeopleService {
             PreparedStatement followableStmt = conn.prepareStatement(doesfollowSql)) { //passes sql queary
 
                 followableStmt.setString(1, userIdToExclude);
+                followableStmt.setString(2, userIdToExclude);
                 try (ResultSet rs = followableStmt.executeQuery()) {
                     // Traverse the result rows one at a time.
                     // Note: This specific while loop will only run at most once 
