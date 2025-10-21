@@ -10,7 +10,7 @@ create table if not exists user (
     username varchar(255) not null unique,
     password varchar(255) not null,
     firstName varchar(255) not null,
-    lastName varchar(255) not null,
+    lastName varchar(255) not null
     -- primary key (userId),
     -- unique (username),
     -- constraint userName_min_length check (char_length(trim(username)) >= 2),
@@ -26,7 +26,7 @@ create table if not exists follow (
     foreign key (followeeId) references user(userId) on delete cascade
 );
 
-CREATE TABLE post (
+CREATE TABLE if not exists post(
     postId INT AUTO_INCREMENT PRIMARY KEY,
     content VARCHAR(500),
     postDate VARCHAR(50),
