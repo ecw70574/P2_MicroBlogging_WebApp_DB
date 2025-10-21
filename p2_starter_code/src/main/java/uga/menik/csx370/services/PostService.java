@@ -70,10 +70,11 @@ public class PostService {
             "JOIN user u ON p.userId = u.userId " +
             "WHERE p.postId IN ( " +
                 "SELECT b.postId FROM bookmark b WHERE b.userId = ? )";
+        
 
         try(Connection conn = dataSource.getConnection();
         PreparedStatement isBooked = conn.prepareStatement(bookmarked_posts)) { //passes sql query
-
+            isBooked.setString(1, logged_in_userId);
             try(ResultSet rs = isBooked.executeQuery()) {
                 while (rs.next()) {
                     User user = new User(
@@ -105,12 +106,12 @@ public class PostService {
         final String not_bookmarked_posts = "SELECT p.postId, p.content, p.userId, u.firstName, u.lastName " + 
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
-            "WHERE p.postId IN ( " +
+            "WHERE p.postId NOT IN ( " +
                 "SELECT b.postId FROM bookmark b WHERE b.userId = ? )";
 
         try(Connection conn = dataSource.getConnection();
         PreparedStatement isnotBooked = conn.prepareStatement(not_bookmarked_posts)) { //passes sql query
-
+            isnotBooked.setString(1, logged_in_userId);
             try(ResultSet rs = isnotBooked.executeQuery()) {
                 while (rs.next()) {
                     User user = new User(
