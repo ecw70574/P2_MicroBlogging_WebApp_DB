@@ -131,7 +131,7 @@ public class BookmarksService {
      */
     public List<Post> getBookMarked(User user) throws SQLException {
         // joining post and bookmarks to get the posts that have been bookmarked
-        final String getBookMarkedSql = "select p.postId, p.content, p.postDate, u.userID, u.firstName, u.lastName " +
+        final String getBookMarkedSql = "select p.postId, b.authorId, p.content, p.postDate, u.userID, u.firstName, u.lastName " +
         "from bookmark b " +
         "join post p on p.postId = b.postId " +  
         "join user u on u.userId = p.userId " +
@@ -145,16 +145,19 @@ public class BookmarksService {
             
             try (ResultSet rs = getBookedStmt.executeQuery()) {
                 while (rs.next()) {
+                    /*
                     User postAuthor = new User(
                         rs.getString("userId"), 
                         rs.getString("firstName"), 
                         rs.getString("lastName")
                         );
+                        */
+                    
                     Post post = new Post(
                         rs.getString("postId"),
                         rs.getString("content"),
                         rs.getTimestamp("postDate").toString(),
-                        postAuthor,
+                        rs.getString("authorId"),
                         0,
                         0,
                         false,
