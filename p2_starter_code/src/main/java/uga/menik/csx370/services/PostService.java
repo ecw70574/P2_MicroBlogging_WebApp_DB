@@ -24,9 +24,12 @@ import uga.menik.csx370.models.User;
 public class PostService {
 
     private final DataSource dataSource;
+    
+    private final UserService userService;
 
-    public PostService(DataSource dataSource) {
+    public PostService(DataSource dataSource, UserService userService) {
         this.dataSource = dataSource;
+        this.userService = userService;
     }
 
     
@@ -57,6 +60,86 @@ public class PostService {
      */
     public List<Post> getPosts() throws SQLException {
         List<Post> posts = new ArrayList<>();
+
+        // in bookmarked table
+
+        User this_user = userService.getLoggedInUser();
+        String logged_in_userId = this_user.getUserId();
+        final bookmarked_posts = "SELECT p.postId, p.content, p.userId, u.firstName, u.lastName " + 
+            "FROM post p " +
+            "JOIN user u ON p.userId = u.userId " +
+            "WHERE p.postId IN ( " +
+                "SELECT b.postId FROM bookmark b WHERE b.userId = ? )";
+
+        try(Connection conn = dataSource.getConnection();
+        PreparedStatement isBooked = conn.prepareStatement(bookmarked_posts)) { //passes sql query
+
+            try(ResultSet rs = isBooked.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User(
+                        rs.getString("userId"),
+                        rs.getString("firstName"),
+                        rs.getString("lastName")
+                        );
+
+                    Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
+                    //convert to Eastern time: -4 hours
+                    LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
+                    
+                    Post post = new Post(
+                        rs.getString("postId"),
+                        rs.getString("content"),
+                        correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
+                        user,
+                        0,
+                        0,
+                        false,
+                        true
+                    );
+                    posts.add(post);
+                }
+            }
+        }
+
+
+        final not_bookmarked_posts = "SELECT p.postId, p.content, p.userId, u.firstName, u.lastName " + 
+            "FROM post p " +
+            "JOIN user u ON p.userId = u.userId " +
+            "WHERE p.postId IN ( " +
+                "SELECT b.postId FROM bookmark b WHERE b.userId = ? )";
+
+        try(Connection conn = dataSource.getConnection();
+        PreparedStatement isnotBooked = conn.prepareStatement(not_bookmarked_posts)) { //passes sql query
+
+            try(ResultSet rs = isnotBooked.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User(
+                        rs.getString("userId"),
+                        rs.getString("firstName"),
+                        rs.getString("lastName")
+                        );
+
+                    Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
+                    //convert to Eastern time: -4 hours
+                    LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
+                    
+                    Post post = new Post(
+                        rs.getString("postId"),
+                        rs.getString("content"),
+                        correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
+                        user,
+                        0,
+                        0,
+                        false,
+                        false
+                    );
+                    posts.add(post);
+                }
+            }
+        }
+
+'''
+
 
         final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
         "from post p join user u on p.userId = u.userId order by p.postDate desc" ;
@@ -90,6 +173,7 @@ public class PostService {
                 }
             }
         }
+'''
         return posts;
     }
 
@@ -140,7 +224,6 @@ public class PostService {
      */
     public List<Post> getUserPosts(String userId) throws SQLException {
         List<Post> posts = new ArrayList<>();
-
         final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
         "from post p join user u on p.userId = u.userId where p.userId = ? order by p.postDate desc" ;
 
