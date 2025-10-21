@@ -77,15 +77,15 @@ public class PeopleService {
         // users that we dont follow
         final String doesNotfollowSql = "SELECT u.userId, u.firstName, u.lastName " + 
         "FROM user u " +
-        "on u.userId = f.followeeId " + 
         "WHERE u.userId NOT IN ( " +
         "SELECT f.followeeId FROM follow f WHERE f.followerId = ?) " +
-        "and f.followeeId <> ? "; // the logged in user is always the follower and never the followee
+        "and u.userId <> ? "; // the logged in user is always the follower and never the followee
 
         try (Connection conn = dataSource.getConnection();
         PreparedStatement notFollowableStmt = conn.prepareStatement(doesNotfollowSql)) { //passes sql queary
 
             notFollowableStmt.setString(1, userIdToExclude);
+            notFollowableStmt.setString(2, userIdToExclude);
             try (ResultSet rs = notFollowableStmt.executeQuery()) {
                 // Traverse the result rows one at a time.
                 // Note: This specific while loop will only run at most once 
