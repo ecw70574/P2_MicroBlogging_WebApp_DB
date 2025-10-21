@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -152,11 +155,14 @@ public class BookmarksService {
                         rs.getString("authorLN")
                         );
 
+                    Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
+                    //convert to Eastern time: -4 hours
+                    LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
                     
                     Post post = new Post(
                         rs.getString("postId"),
                         rs.getString("content"),
-                        rs.getTimestamp("postDate").toString(),
+                        correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
                         postAuthor,
                         0,
                         0,

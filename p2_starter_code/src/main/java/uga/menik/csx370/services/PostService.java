@@ -139,7 +139,7 @@ public class PostService {
             }
         }
 
-'''
+/*
 
 
         final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
