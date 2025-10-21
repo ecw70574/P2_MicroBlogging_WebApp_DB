@@ -161,7 +161,7 @@ public class BookmarksService {
                         0,
                         0,
                         false,
-                        false
+                        true
                     );
                     posts.add(post);
                 } 

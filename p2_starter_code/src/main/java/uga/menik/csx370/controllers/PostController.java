@@ -72,6 +72,7 @@ public class PostController {
 	try {
 	    
 	    List<Post> posts = postService.getPosts();
+        
 	    if (posts.isEmpty()) {
 		mv.addObject("isNoContent",true);
 	    } else {
