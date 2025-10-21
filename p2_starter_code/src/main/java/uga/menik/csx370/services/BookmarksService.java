@@ -33,20 +33,48 @@ public class BookmarksService {
      * returns true is bookmark was added. 
      */
     public boolean addBookmark(User user, String postId) throws SQLException {
+        final String getAuthor = "select p.userId from post p where p.postId = ?";
+
+
+        // run author query first
+        String authorId = null;
+
+        try (Connection conn = dataSource.getConnection(); //establish connection with database
+            authorStmt = conn.prepareStatement(getAuthor)) { //passes sql query
+            authorStmt.setString(1, postId);
+            ResultSet rs = authorStmt.executeQuery();
+            // whose post is this
+
+            if (rs.next()) {
+                authorId = rs.getString("userId");  //  get author ID
+            } else {
+                System.out.println("No author found for postId: " + postId);
+                return false;
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+            return false;
+	    }
+
+
+
         // inserting the user and the post they bookmarked into the bookmark table 
-        final String postSql = "insert into bookmark (userId, postId) values (?, ?)";
+        final String postSql = "insert into bookmark (userId, postId, authorId) values (?, ?, ?)";
 
         try (Connection conn = dataSource.getConnection(); //establish connection with database
             PreparedStatement postStmt = conn.prepareStatement(postSql)) { //passes sql queary
+
             postStmt.setString(1, user.getUserId());
             postStmt.setString(2, postId); // unique identifier for post (assuming this will be in the post table)
+            postStmt.setString(3, authorId);
+            // whose post is this
 
             int rowsAffected = postStmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e){
-	    e.printStackTrace();
-	    return false;
-	}
+            e.printStackTrace();
+            return false;
+	    }
     }
 
     /*
@@ -54,13 +82,40 @@ public class BookmarksService {
      * returns true if the bookmark was removed.
      */
     public boolean removeBookmark(User user, String postId) throws SQLException {
+
+        // shouldnt need this first part because we have both userId and postId to delete bookmark
+
+        final String getAuthor = "select p.userId from post p where p.postId = ?";
+
+
+        // run author query first
+        String authorId = null;
+
+        try (Connection conn = dataSource.getConnection(); //establish connection with database
+            authorStmt = conn.prepareStatement(getAuthor)) { //passes sql query
+            authorStmt.setString(1, postId);
+            ResultSet rs = authorStmt.executeQuery();
+            // whose post is this
+
+            if (rs.next()) {
+                authorId = rs.getString("userId");  //  get author ID
+            } else {
+                System.out.println("No author found for postId: " + postId);
+                return false;
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+            return false;
+	    }
+
         // deleting the user and the post they bookmarked into the bookmark table 
-        final String removeSql = "delete from bookmark where userId = ? and postId = ?";
+        final String removeSql = "delete from bookmark where userId = ? and postId = ? and authorId = ?";
 
         try (Connection conn = dataSource.getConnection(); //establish connection with database
             PreparedStatement removeStmt = conn.prepareStatement(removeSql)) { //passes sql queary
             removeStmt.setString(1, user.getUserId());
             removeStmt.setString(2, postId); // unique identifier for post (assuming this will be in the post table)
+            removeStmt.setString(3, authorId);
 
             int rowsAffected = removeStmt.executeUpdate();
             return rowsAffected > 0;

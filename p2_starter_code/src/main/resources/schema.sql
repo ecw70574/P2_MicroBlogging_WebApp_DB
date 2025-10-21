@@ -30,7 +30,7 @@ CREATE TABLE if not exists post(
     postId INT AUTO_INCREMENT PRIMARY KEY,
     content VARCHAR(500),
     postDate VARCHAR(50),
-    userId INT,
+    userId INT not null,
     heartsCount INT DEFAULT 0,
     commentsCount INT DEFAULT 0,
     isHearted BOOLEAN DEFAULT FALSE,
@@ -42,7 +42,9 @@ CREATE TABLE if not exists post(
 CREATE TABLE if not exists bookmark(
     userId INT, 
     postId INT,
+    authorId INT,
     primary key (userId, postId),
     foreign key (userId) references user(userId) on delete cascade,
-    foreign key (postId) references post(postId) on delete cascade
+    foreign key (postId) references post(postId) on delete cascade,
+    foreign key (authorId) references user(userId) on delete cascade
 );
