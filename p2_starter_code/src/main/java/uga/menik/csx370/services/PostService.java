@@ -93,6 +93,45 @@ public class PostService {
         return posts;
     }
 
+    public List<Post> getPostById(String postId) throws SQLException {
+        List<Post> posts = new ArrayList<>();
+
+        final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
+        "from post p join user u on p.userId = u.userId where p.postId = ?" ;
+
+        try(Connection conn = dataSource.getConnection();
+        PreparedStatement postStmt = conn.prepareStatement(getPostSql)) { //passes sql query
+            postStmt.setString(1, postId);
+
+            try(ResultSet rs = postStmt.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User(
+                        rs.getString("userId"),
+                        rs.getString("firstName"),
+                        rs.getString("lastName")
+                        );
+
+                    Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
+                    //convert to Eastern time: -4 hours
+                    LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
+                    
+                    Post post = new Post(
+                        rs.getString("postId"),
+                        rs.getString("content"),
+                        correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
+                        user,
+                        0,
+                        0,
+                        false,
+                        false
+                    );
+                    posts.add(post);
+                }
+            }
+        }
+        return posts;
+    }
+
 
 /**
      * This function should query and return all from the specified userposts.

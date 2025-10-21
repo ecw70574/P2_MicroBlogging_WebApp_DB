@@ -71,7 +71,8 @@ public class PostController {
 	//        List<ExpandedPost> posts = Utility.createSampleExpandedPostWithComments();
 	try {
 	    
-	    List<Post> posts = postService.getPosts();
+	    List<Post> posts = postService.getPostById(postId); // passsing in the postId from the webpage so that only one post is displayed
+        
 
 	    if (posts.isEmpty()) {
 		mv.addObject("isNoContent",true);
@@ -182,9 +183,9 @@ public class PostController {
 	    } else {
 		actionCompleted = bookmarkService.removeBookmark(currentUser, postId);
 	    }
-	    //if (actionCompleted){
-		//return "redirect:/post/" + postId;
-	    // }
+	    if (actionCompleted){
+		    return "redirect:/post/" + postId;
+	    }
 	} catch (SQLException e){
 	    e.printStackTrace();
 	}

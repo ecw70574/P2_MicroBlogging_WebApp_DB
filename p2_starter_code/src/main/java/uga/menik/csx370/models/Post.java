@@ -92,4 +92,5 @@ public class Post extends BasicPost {
     public boolean isBookmarked() {
         return isBookmarked;
     }
+
 }
