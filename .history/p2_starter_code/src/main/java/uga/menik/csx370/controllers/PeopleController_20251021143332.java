@@ -28,6 +28,7 @@ import uga.menik.csx370.services.UserService;
 @RequestMapping("/people")
 public class PeopleController {
 
+    // Inject UserService and PeopleService instances.
     private final PeopleService peopleService;
     private final UserService userService; 
     @Autowired
@@ -35,25 +36,50 @@ public class PeopleController {
         this.peopleService = peopleService;
         this.userService = userService; 
     }
-    
+    /**
+     * Serves the /people web page.
+     * 
+     * Note that this accepts a URL parameter called error.
+     * The value to this parameter can be shown to the user as an error message.
+     * See notes in HashtagSearchController.java regarding URL parameters.
+     */
     @GetMapping
     public ModelAndView webpage(@RequestParam(name = "error", required = false) String error) {
+        // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("people_page");
 
-        
+        // Following line populates sample data.
+        // You should replace it with actual data from the database.
+        // Use the PeopleService instance to find followable users.
+        // Use UserService to access logged in userId to exclude.
         List<FollowableUser> followableUsers = peopleService.getFollowableUsers(
             userService.getLoggedInUser().getUserId()
         );
         mv.addObject("users", followableUsers);
 
-       
+        // If an error occured, you can set the following property with the
+        // error message to show the error message to the user.
+        // An error message can be optionally specified with a url query parameter too.
         String errorMessage = error;
         mv.addObject("errorMessage", errorMessage);
+
+        // Enable the following line if you want to show no content message.
+        // Do that if your content list is empty.
+        // mv.addObject("isNoContent", true);
         
         return mv;
     }
 
-  
+    /**
+     * This function handles user follow and unfollow.
+     * Note the URL has parameters defined as variables ie: {userId} and {isFollow}.
+     * Follow and unfollow is handled by submitting a get type form to this URL 
+     * by specifing the userId and the isFollow variables.
+     * Learn more here: https://www.w3schools.com/tags/att_form_method.asp
+     * An example URL that is handled by this function looks like below:
+     * http://localhost:8081/people/1/follow/false
+     * The above URL assigns 1 to userId and false to isFollow.
+     */
     @GetMapping("{userId}/follow/{isFollow}")
     public String followUnfollowUser(@PathVariable("userId") String userId,
             @PathVariable("isFollow") Boolean isFollow) {
