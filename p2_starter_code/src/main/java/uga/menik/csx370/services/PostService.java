@@ -77,7 +77,7 @@ public class PostService {
             isBooked.setString(1, logged_in_userId);
             try(ResultSet rs = isBooked.executeQuery()) {
                 while (rs.next()) {
-                    User user = new User(
+                    /* User user = new User(
                         rs.getString("userId"),
                         rs.getString("firstName"),
                         rs.getString("lastName")
@@ -98,6 +98,8 @@ public class PostService {
                         true
                     );
                     posts.add(post);
+                    */
+                    posts.add(helpPost(rs, 0, 0, false, true));
                 }
             }
         }
@@ -114,7 +116,7 @@ public class PostService {
             isnotBooked.setString(1, logged_in_userId);
             try(ResultSet rs = isnotBooked.executeQuery()) {
                 while (rs.next()) {
-                    User user = new User(
+                    /* User user = new User(
                         rs.getString("userId"),
                         rs.getString("firstName"),
                         rs.getString("lastName")
@@ -135,6 +137,8 @@ public class PostService {
                         false
                     );
                     posts.add(post);
+                    */
+                    posts.add(helpPost(rs, 0, 0, false, false));
                 }
             }
         }
@@ -190,7 +194,7 @@ public class PostService {
 
             try(ResultSet rs = postStmt.executeQuery()) {
                 while (rs.next()) {
-                    User user = new User(
+                    /* User user = new User(
                         rs.getString("userId"),
                         rs.getString("firstName"),
                         rs.getString("lastName")
@@ -211,6 +215,8 @@ public class PostService {
                         false
                     );
                     posts.add(post);
+                    */
+                    posts.add(helpPost(rs, 0, 0, false, false));
                 }
             }
         }
@@ -234,7 +240,7 @@ public class PostService {
         
             try(ResultSet rs = postStmt.executeQuery()) {
                 while (rs.next()) {
-                    User user = new User(
+                    /*User user = new User(
                         rs.getString("userId"),
                         rs.getString("firstName"),
                         rs.getString("lastName")
@@ -254,7 +260,9 @@ public class PostService {
                         false,
                         false
                     );
-                    posts.add(post);
+                    posts.add(post); 
+                    */
+                    posts.add(helpPost(rs, 0, 0, false, false));
                 }
             }
         }
@@ -302,4 +310,29 @@ public class PostService {
         }
     }
 
+    //Example use:
+    //    posts.set(helpPost(rs, 0, 0, false, false));
+    public Post helpPost(ResultSet rs, int heartsCount, int commentsCount, boolean isHearted, boolean isBookmarked) throws SQLException {
+        User user = new User(
+            rs.getString("userId"),
+            rs.getString("firstName"),
+            rs.getString("lastName")
+        );
+
+        Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
+        //convert to Eastern time: -4 hours
+        LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
+
+        Post post = new Post(
+                rs.getString("postId"),
+                rs.getString("content"),
+                correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
+                user,
+                heartsCount,
+                commentsCount,
+                isHearted,
+                isBookmarked
+            );
+        return post;
+    }
 }
