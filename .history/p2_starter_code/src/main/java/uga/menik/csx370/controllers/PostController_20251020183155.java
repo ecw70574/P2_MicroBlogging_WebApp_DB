@@ -20,7 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import uga.menik.csx370.models.ExpandedPost;
 import uga.menik.csx370.services.PostService;
-import uga.menik.csx370.services.UserService;
 import uga.menik.csx370.utility.Utility;
 
 
@@ -33,10 +32,6 @@ public class PostController {
 
     @Autowired
     private PostService postService;
-    
-    @Autowired
-    private UserService userService;
-
     /**
      * This function handles the /post/{postId} URL.
      * This handlers serves the web page for a specific post.
@@ -107,26 +102,29 @@ public class PostController {
         System.out.println("\tpostId: " + postId);
         System.out.println("\tisAdd: " + isAdd);
 
-        String currentUserId = userService.getLoggedInUser().getUserId();
+        String currentUserId = postService.userService.getLoggedInUser().getUserId();
 
         boolean actionCompleted = false;
 
+        // Perform the correct action depending on isAdd
         if (isAdd) {
             actionCompleted = postService.addLike(currentUserId, postId);
         } else {
             actionCompleted = postService.removeLike(currentUserId, postId);
         }
 
+        // Decide what to do after the attempt
         if (actionCompleted) {
             return "redirect:/post/" + postId;
         }
 
+        // If failed, send an error message
         String errorNote = URLEncoder.encode(
             "Unable to update like status. Please try again later.",
             StandardCharsets.UTF_8
         );
         return "redirect:/post/" + postId + "?error=" + errorNote;
-    }
+        }
 
     /**
      * Handles bookmarking posts.

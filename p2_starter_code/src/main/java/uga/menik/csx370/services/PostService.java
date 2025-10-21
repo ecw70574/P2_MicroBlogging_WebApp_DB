@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import uga.menik.csx370.models.Post;
 import uga.menik.csx370.models.User;
-
 
 /**
  * This service contains people related functions.
@@ -69,10 +71,15 @@ public class PostService {
                         rs.getString("firstName"),
                         rs.getString("lastName")
                         );
+
+                    Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
+                    //convert to Eastern time: -4 hours
+                    LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
+                    
                     Post post = new Post(
                         rs.getString("postId"),
                         rs.getString("content"),
-                        rs.getTimestamp("postDate").toString(),
+                        correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
                         user,
                         0,
                         0,
@@ -127,5 +134,44 @@ public class PostService {
     }
 
 
+    //adds a like to a post
+    public boolean addLike(String userId, String postId) {
+        // inserts a like in sql
+        final String addLikeSql = "INSERT IGNORE INTO post_like (userId, postId) VALUES (?, ?)";
+
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(addLikeSql)) {
+
+            pstmt.setString(1, userId);
+            pstmt.setString(2, postId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    //removes a like from a post
+    public boolean removeLike(String userId, String postId) {
+        // deletes the like - sql
+        final String removeLikeSql = "DELETE FROM post_like WHERE userId = ? AND postId = ?";
+
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(removeLikeSql)) {
+
+            pstmt.setString(1, userId);
+            pstmt.setString(2, postId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            return false;
+        }
+    }
 
 }

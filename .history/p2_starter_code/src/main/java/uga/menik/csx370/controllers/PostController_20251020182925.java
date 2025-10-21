@@ -20,7 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import uga.menik.csx370.models.ExpandedPost;
 import uga.menik.csx370.services.PostService;
-import uga.menik.csx370.services.UserService;
 import uga.menik.csx370.utility.Utility;
 
 
@@ -33,10 +32,6 @@ public class PostController {
 
     @Autowired
     private PostService postService;
-    
-    @Autowired
-    private UserService userService;
-
     /**
      * This function handles the /post/{postId} URL.
      * This handlers serves the web page for a specific post.
@@ -107,25 +102,42 @@ public class PostController {
         System.out.println("\tpostId: " + postId);
         System.out.println("\tisAdd: " + isAdd);
 
-        String currentUserId = userService.getLoggedInUser().getUserId();
+         System.out.println("The user is attempting to add or remove a heart:");
+        System.out.println("\tpostId: " + postId);
+        System.out.println("\tisAdd: " + isAdd);
 
-        boolean actionCompleted = false;
+        // Get the logged-in user's ID
+        String userId = postService.userService.getLoggedInUser().getUserId();
 
+        boolean success;
+
+        // Add or remove heart based on isAdd value
         if (isAdd) {
-            actionCompleted = postService.addLike(currentUserId, postId);
+            success = postService.addLike(userId, postId);
         } else {
-            actionCompleted = postService.removeLike(currentUserId, postId);
+            success = postService.removeLike(userId, postId);
         }
 
-        if (actionCompleted) {
+        // Redirect based on success or failure
+        if (success) {
             return "redirect:/post/" + postId;
+        } else {
+            String message = URLEncoder.encode("Failed to (un)like the post. Please try again.",
+                    StandardCharsets.UTF_8);
+            return "redirect:/post/" + postId + "?error=" + message;
         }
 
-        String errorNote = URLEncoder.encode(
-            "Unable to update like status. Please try again later.",
-            StandardCharsets.UTF_8
-        );
-        return "redirect:/post/" + postId + "?error=" + errorNote;
+
+
+        //MY NEW STUFF
+
+        // Redirect the user if the comment adding is a success.
+        // return "redirect:/post/" + postId;
+
+        // Redirect the user with an error message if there was an error.
+        String message = URLEncoder.encode("Failed to (un)like the post. Please try again.",
+                StandardCharsets.UTF_8);
+        return "redirect:/post/" + postId + "?error=" + message;
     }
 
     /**

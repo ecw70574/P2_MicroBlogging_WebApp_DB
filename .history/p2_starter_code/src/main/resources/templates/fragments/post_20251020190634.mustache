@@ -16,14 +16,14 @@ This is a project developed by Dr. Menik to give the students an opportunity to 
         <div class="post-actions">
             <a href="/post/{{postId}}" class="far fa-comment"></a>
             <span class="action-count">{{commentsCount}}</span>
-           
+            <form method="get" action="/post/{{postId}}/heart/true">
+            <button class="fa fa-heart"></button>
+            </form>
 
             <!-- show if the post is hearted by the user -->
             {{#isHearted}}
             <form method="get" action="/post/{{postId}}/heart/false">
-                <button class="fa fa-heart" style="color:red !important;"></button>
-
-
+                <button class="fa fa-heart"></button>
             </form>
             {{/isHearted}}
             <!-- show if the post is not hearted by the user -->

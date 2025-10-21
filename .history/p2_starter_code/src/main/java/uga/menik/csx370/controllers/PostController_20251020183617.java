@@ -107,7 +107,7 @@ public class PostController {
         System.out.println("\tpostId: " + postId);
         System.out.println("\tisAdd: " + isAdd);
 
-        String currentUserId = userService.getLoggedInUser().getUserId();
+        String currentUserId = postService.userService.getLoggedInUser().getUserId();
 
         boolean actionCompleted = false;
 
