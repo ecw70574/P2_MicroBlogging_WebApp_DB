@@ -36,31 +36,42 @@ public class HashtagService {
         List<Post> posts = new ArrayList<>();
 
         // we have the list of hashtag words here but need to split them up individaully 
-        // still need to implement that the most recent posts are displayed first 
-        String [] searchedHashtags = hashtags.split(" ");
+        List<String> searchedHashtags = new ArrayList<>(); //array lsit with hashtags
+        String [] search = hashtags.split(" "); //list of all splits
+        System.out.println();
+        for (int i = 0; i < search.length; i++) {
+            if (search[i].startsWith("#")) { //get items that start w/ hashtags
+                System.out.print(search[i] + ", ");
+                searchedHashtags.add(search[i]); //add to list
+            } 
+        }
 
         String getPostSql = "select p.postId, p.content, p.postDate, u.userID, u.firstName, u.lastName " + 
                                 "from post AS p, user AS u " + 
-                                "where p.userId = u.userId AND " ;
-
-        //String getPostSql = "select p.content from post AS p where " ;
-
-        // looping through the hastags so that we can search individually 
-        for (int i = 0; i < searchedHashtags.length; i++) {
-            if (i> 0) {
-                getPostSql += " and "; // add between
+                                "where p.userId = u.userId and (" ;
+        
+        // looping through the hastags so that we can search individually
+        if(!searchedHashtags.isEmpty()) { //if there are hastags to search
+            for (int i = 0; i < searchedHashtags.size(); i++) {
+                if (i > 0) {
+                    getPostSql += " and "; // add between
+                }
+                getPostSql += "p.content REGEXP ?"; // content contains the hashtag
             }
-            getPostSql += "p.content like ?"; // content contains the hashtag
         }
+        
 
-        getPostSql += " ORDER BY p.postDate DESC";
+        // still need to implement that the most recent posts are displayed first 
+        getPostSql += ") ORDER BY p.postDate DESC";
         
         try(Connection conn = dataSource.getConnection();
             PreparedStatement hashtStmt = conn.prepareStatement(getPostSql)){ //passes sql query
 
         // binding the like statements to the hashtags
-            for (int i = 0; i < searchedHashtags.length; i++) {
-                hashtStmt.setString(i + 1, "%" + searchedHashtags[i] + "%");
+        // (^|\s): means start (^) can be a space or (|) the searchedHashtag
+        // ($|\s): means end ($) can be a space or (|) just the end
+            for (int i = 0; i < searchedHashtags.size(); i++) {
+                hashtStmt.setString(i + 1, "(^|\s)" + searchedHashtags.get(i) + "($|\s)");
             }
 
             try (ResultSet rs = hashtStmt.executeQuery()) {
@@ -75,10 +86,10 @@ public class HashtagService {
                         rs.getString("content"),
                         rs.getTimestamp("postDate").toString(),
                         user,
-                    0,
-                    0,
-                    false,
-                    false
+                        0,
+                        0,
+                        false,
+                        false
                     );
                     posts.add(post);
                 }
