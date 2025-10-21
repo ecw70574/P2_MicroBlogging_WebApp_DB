@@ -38,7 +38,7 @@ CREATE TABLE if not exists post(
     FOREIGN KEY (userId) REFERENCES user(userId) on delete cascade
 );
 
-DROP TABLE bookmark;
+-- DROP TABLE bookmark;
 CREATE TABLE if not exists bookmark(
     userId INT, 
     postId INT,
@@ -47,4 +47,12 @@ CREATE TABLE if not exists bookmark(
     foreign key (userId) references user(userId) on delete cascade,
     foreign key (postId) references post(postId) on delete cascade,
     foreign key (authorId) references user(userId) on delete cascade
+);
+
+CREATE TABLE IF NOT EXISTS post_like (
+    userId INT NOT NULL,
+    postId INT NOT NULL,
+    PRIMARY KEY (userId, postId),
+    FOREIGN KEY (userId) REFERENCES user(userId) ON DELETE CASCADE,
+    FOREIGN KEY (postId) REFERENCES post(postId) ON DELETE CASCADE
 );
