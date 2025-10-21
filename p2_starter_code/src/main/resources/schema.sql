@@ -38,7 +38,7 @@ CREATE TABLE if not exists post(
     FOREIGN KEY (userId) REFERENCES user(userId) on delete cascade
 );
 
-
+DROP TABLE bookmark;
 CREATE TABLE if not exists bookmark(
     userId INT, 
     postId INT,

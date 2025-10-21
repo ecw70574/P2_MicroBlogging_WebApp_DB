@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import java.sql.SQLException;
 
+
 import uga.menik.csx370.models.ExpandedPost;
+import uga.menik.csx370.models.Post;
 import uga.menik.csx370.services.PostService;
 import uga.menik.csx370.services.UserService;
 import uga.menik.csx370.services.BookmarksService;
@@ -43,6 +45,10 @@ public class PostController {
     @Autowired
     private BookmarksService bookmarkService;
 
+    public PostController(PostService postService){
+	this.postService = postService;
+    }
+
     /**
      * This function handles the /post/{postId} URL.
      * This handlers serves the web page for a specific post.
@@ -62,14 +68,24 @@ public class PostController {
 
         // Following line populates sample data.
         // You should replace it with actual data from the database.
-        List<ExpandedPost> posts = Utility.createSampleExpandedPostWithComments();
-        mv.addObject("posts", posts);
+	//        List<ExpandedPost> posts = Utility.createSampleExpandedPostWithComments();
+	try {
+	    
+	    List<Post> posts = postService.getPosts();
+	    if (posts.isEmpty()) {
+		mv.addObject("isNoContent",true);
+	    } else {
+	 	mv.addObject("posts", posts);
+	    }
+	} catch (SQLException e){
+	    String errorMessage = "Some error occured";
+	    e.printStackTrace();
+	    mv.addObject("errorMessage", errorMessage);
+	} // try catch
 
         // If an error occured, you can set the following property with the
         // error message to show the error message to the user.
         // An error message can be optionally specified with a url query parameter too.
-        String errorMessage = error;
-        mv.addObject("errorMessage", errorMessage);
 
         // Enable the following line if you want to show no content message.
         // Do that if your content list is empty.

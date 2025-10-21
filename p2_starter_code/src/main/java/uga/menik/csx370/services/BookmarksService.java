@@ -49,11 +49,13 @@ public class BookmarksService {
                 System.out.println("No author found for postId: " + postId);
                 return false;
             }
+	    
         } catch (SQLException e){
             e.printStackTrace();
             return false;
 	    }
 
+	System.out.println("Author id going into query: " + authorId);
 
 
         // inserting the user and the post they bookmarked into the bookmark table 
@@ -90,7 +92,7 @@ public class BookmarksService {
         String authorId = null;
 
         try (Connection conn = dataSource.getConnection(); //establish connection with database
-            authorStmt = conn.prepareStatement(getAuthor)) { //passes sql query
+            PreparedStatement authorStmt = conn.prepareStatement(getAuthor)) { //passes sql query
             authorStmt.setString(1, postId);
             ResultSet rs = authorStmt.executeQuery();
             // whose post is this
@@ -129,33 +131,33 @@ public class BookmarksService {
      */
     public List<Post> getBookMarked(User user) throws SQLException {
         // joining post and bookmarks to get the posts that have been bookmarked
-        final String getBookMarkedSql = "select p.postId, b.authorId, p.content, p.postDate, u.userID, u.firstName, u.lastName " +
+        final String getBookMarkedSql = "select p.postId, b.authorId, p.content, p.postDate, u.firstName as authorFN, u.lastName as authorLN " +
         "from bookmark b " +
         "join post p on p.postId = b.postId " +  
-        "join user u on u.userId = p.userId " +
+        "join user u on u.userId = b.authorId " +
         "where b.userId = ?";
 
         List<Post> posts = new ArrayList<>();
 
         try (Connection conn = dataSource.getConnection(); //establish connection with database
             PreparedStatement getBookedStmt = conn.prepareStatement(getBookMarkedSql)) { //passes sql queary
-            getBookedStmt.setString(1, user.getUserId());
+            getBookedStmt.setString(1, user.getUserId()); // getting logged in user's username so we can get their bookmarked posts
             
             try (ResultSet rs = getBookedStmt.executeQuery()) {
                 while (rs.next()) {
-                    /*
+
                     User postAuthor = new User(
-                        rs.getString("userId"), 
-                        rs.getString("firstName"), 
-                        rs.getString("lastName")
+                        rs.getString("authorId"), 
+                        rs.getString("authorFN"), 
+                        rs.getString("authorLN")
                         );
-                        */
+
                     
                     Post post = new Post(
                         rs.getString("postId"),
                         rs.getString("content"),
                         rs.getTimestamp("postDate").toString(),
-                        rs.getString("authorId"),
+                        postAuthor,
                         0,
                         0,
                         false,
