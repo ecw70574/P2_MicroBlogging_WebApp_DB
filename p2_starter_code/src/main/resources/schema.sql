@@ -58,3 +58,14 @@ CREATE TABLE IF NOT EXISTS post_like (
     FOREIGN KEY (userId) REFERENCES user(userId) ON DELETE CASCADE,
     FOREIGN KEY (postId) REFERENCES post(postId) ON DELETE CASCADE
 );
+
+
+CREATE TABLE IF NOT EXISTS comment (
+    commentId INT AUTO_INCREMENT PRIMARY KEY,
+    commenterId INT NOT NULL,
+    postId INT NOT NULL,
+    content VARCHAR(300) NOT NULL,
+    commentDate VARCHAR(50),
+    FOREIGN KEY (commenterId) REFERENCES user(userId) ON DELETE CASCADE,
+    FOREIGN KEY (postId) REFERENCES post(postId) ON DELETE CASCADE
+);
