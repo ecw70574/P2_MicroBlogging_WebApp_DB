@@ -40,7 +40,8 @@ public class PeopleService {
         List<FollowableUser> followableUsers = new ArrayList<>();
 
         // get the users that we do follow - sql query 
-        final String doesfollowSql = "SELECT u.userId, u.firstName, u.lastName " + 
+        final String doesfollowSql = "SELECT u.userId, u.firstName, u.lastName, " +
+	"COALESCE ((SELECT MAX(p.postDate) FROM post p WHERE p.userId = u.userId), '') AS lastActiveDate " +
         "FROM user u join follow f " +
         "on u.userId = f.followeeId " + 
         "WHERE f.followeeId <> ? and f.followerId = ?"; // the logged in user is always the follower and never the followee
@@ -59,6 +60,11 @@ public class PeopleService {
                     // Note: This specific while loop will only run at most once 
                     // since ID is unique
                     while (rs.next()) {
+
+			String last_active_field = rs.getString("lastActiveDate");
+			if (last_active_field == null || last_active_field.trim().isEmpty()) {
+			    last_active_field = "Never";
+			}			    
                         // Note: rs.get.. functions access attributes of the current row.
                         // Access rows and their attributes
                         // from the query result.
@@ -67,7 +73,7 @@ public class PeopleService {
                             rs.getString("firstName"),
                             rs.getString("lastName"),
                             true,
-                            ""
+                            last_active_field
                         ));
                     } //while
                 } //try
@@ -76,7 +82,8 @@ public class PeopleService {
             } //try-catch
 
         // users that we dont follow
-        final String doesNotfollowSql = "SELECT u.userId, u.firstName, u.lastName " + 
+        final String doesNotfollowSql = "SELECT u.userId, u.firstName, u.lastName, " +
+	"COALESCE ((SELECT MAX(p.postDate) FROM post p WHERE p.userId = u.userId), '') AS lastActiveDate " + 
         "FROM user u " +
         "WHERE u.userId NOT IN ( " +
         "SELECT f.followeeId FROM follow f WHERE f.followerId = ?) " +
@@ -95,12 +102,17 @@ public class PeopleService {
                     // Note: rs.get.. functions access attributes of the current row.
                     // Access rows and their attributes
                     // from the query result.
+		    String last_active_field = rs.getString("lastActiveDate");
+		    if (last_active_field == null || last_active_field.trim().isEmpty()) {
+			last_active_field = "Never";
+		    }
+			
                     followableUsers.add(new FollowableUser (
                         rs.getString("userId"),
                         rs.getString("firstName"),
                         rs.getString("lastName"),
                         false,
-                        ""
+                        last_active_field
                     ));
                 } //while
             } //try

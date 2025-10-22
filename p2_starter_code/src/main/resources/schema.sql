@@ -5,8 +5,8 @@
 -- use csx370_mb_platform;
 
 -- Create the user table.
-alter table user ADD lastActiveDate VARCHAR(50);
-
+-- alter table user ADD lastActiveDate VARCHAR(50);
+ALTER TABLE user DROP COLUMN lastActiveDate;
 create table if not exists user (
     userId int auto_increment primary key,
     username varchar(255) not null unique,
