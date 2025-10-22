@@ -105,6 +105,20 @@ public class PostController {
         System.out.println("The user is attempting add a comment:");
         System.out.println("\tpostId: " + postId);
         System.out.println("\tcomment: " + comment);
+ 
+	try{
+	    User currentUser = userService.getLoggedInUser();
+	    String loggedInUserId = currentUser.getUserId();
+
+	    boolean actionCompleted = postService.createComment(loggedInUserId, postId,comment);
+
+	    if (actionCompleted){
+		    return "redirect:/post/" + postId;
+	    }
+	} catch (SQLException e){
+	    e.printStackTrace();
+	}
+	
 
         // Redirect the user if the comment adding is a success.
         // return "redirect:/post/" + postId;
