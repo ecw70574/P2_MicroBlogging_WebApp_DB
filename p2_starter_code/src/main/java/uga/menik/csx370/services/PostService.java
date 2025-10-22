@@ -184,7 +184,22 @@ public class PostService {
 
     public List<Post> getPostById(String postId) throws SQLException {
         List<Post> posts = new ArrayList<>();
+        User this_user = userService.getLoggedInUser();
+        String logged_in_userId = this_user.getUserId();
 
+	final String findIfBookmarked = "SELECT EXISTS (SELECT 1 FROM bookmark b WHERE b.postId = ? AND b.userId = ?)";
+
+	boolean isBookmarked = false;
+	try(Connection conn = dataSource.getConnection();
+	    PreparedStatement isitBookmarked = conn.prepareStatement(findIfBookmarked)) {
+	    isitBookmarked.setString(1,postId);
+	    isitBookmarked.setString(2,logged_in_userId);
+	    try(ResultSet rs = isitBookmarked.executeQuery()) {
+		if (rs.next()) {
+		    isBookmarked = rs.getBoolean(1);
+		}
+	    }
+	}
         final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
         "from post p join user u on p.userId = u.userId where p.postId = ?" ;
 
@@ -216,15 +231,15 @@ public class PostService {
                     );
                     posts.add(post);
                     */
-                    posts.add(helpPost(rs, 0, 0, false, false));
+                    posts.add(helpPost(rs, 0, 0, false, isBookmarked));
                 }
             }
-        }
+	}
         return posts;
     }
 
 
-/**
+     /**
      * This function should query and return all from the specified userposts.
      * @return the posts
      * @throws SQLException
