@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uga.menik.csx370.services.PostService;
 
 import uga.menik.csx370.models.Post;
 import uga.menik.csx370.models.User;
@@ -24,11 +25,13 @@ import uga.menik.csx370.models.User;
  */
 public class BookmarksService {
     private final DataSource dataSource;
+    private final PostService postService;
    
 
     @Autowired
-    public BookmarksService(DataSource datasource) {
+    public BookmarksService(DataSource datasource, PostService postService) {
         this.dataSource = datasource;
+        this.postService = postService;
     }
 
     /*
@@ -134,20 +137,55 @@ public class BookmarksService {
      */
     public List<Post> getBookMarked(User user) throws SQLException {
         // joining post and bookmarks to get the posts that have been bookmarked
+        /* 
         final String getBookMarkedSql = "select p.postId, b.authorId, p.content, p.postDate, u.firstName as authorFN, u.lastName as authorLN " +
         "from bookmark b " +
         "join post p on p.postId = b.postId " +  
         "join user u on u.userId = b.authorId " +
         "where b.userId = ?";
+        */
 
+        final String getBookMarkedSql = 
+        "select count(distinct pl.userId) as heartsCount, p.postId, b.authorId, p.content, p.postDate, u.firstName as authorFN, u.lastName as authorLN, " +
+        "exists (select 1 from post_like pl2 where pl2.postId = p.postId and pl2.userId = ?) as isLiked " +
+        "from bookmark b " +
+        "join post p on p.postId = b.postId " +  
+        "join user u on u.userId = b.authorId " +
+        "left join post_like pl on pl.postId = p.postId " +
+        "where b.userId = ? " +
+        "group by p.postId, b.authorId, p.postDate, u.firstName, u.lastName";
+        
+
+        // final String getIsLikedByUser = "with userHearted as select(postId from post_like where userId = ?) as userHeartedPost";
+        /* 
+        boolean isLiked = false;
+	    try(Connection conn = dataSource.getConnection();
+	        PreparedStatement likeStmt = conn.prepareStatement(getBookMarkedSql)) {
+            // params 
+	        likeStmt.setString(1,user.getUserId());
+            l
+	        try(ResultSet rs = likeStmt.executeQuery()) {
+		        if (rs.next()) {
+		            isLiked = rs.getBoolean(1);
+		        }
+	        }
+	    }
+        */
         List<Post> posts = new ArrayList<>();
 
         try (Connection conn = dataSource.getConnection(); //establish connection with database
             PreparedStatement getBookedStmt = conn.prepareStatement(getBookMarkedSql)) { //passes sql queary
-            getBookedStmt.setString(1, user.getUserId()); // getting logged in user's username so we can get their bookmarked posts
-            
+
+            getBookedStmt.setString(1, user.getUserId());
+            getBookedStmt.setString(2, user.getUserId());
+
             try (ResultSet rs = getBookedStmt.executeQuery()) {
                 while (rs.next()) {
+                    // get the like count
+                    int heartsCount = rs.getInt("heartsCount");
+
+                    // get the liked by user
+                    boolean isLiked = rs.getBoolean("isLiked");
 
                     User postAuthor = new User(
                         rs.getString("authorId"), 
@@ -158,18 +196,9 @@ public class BookmarksService {
                     Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
                     //convert to Eastern time: -4 hours
                     LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
-                    
-                    Post post = new Post(
-                        rs.getString("postId"),
-                        rs.getString("content"),
-                        correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
-                        postAuthor,
-                        0,
-                        0,
-                        false,
-                        true
-                    );
-                    posts.add(post);
+                
+                    posts.add(postService.helpPost(rs, heartsCount, 0, isLiked, true));
+
                 } 
             } // try
         } catch (SQLException e){
