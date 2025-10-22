@@ -46,7 +46,7 @@ public class TrendingService {
                 From post_like
                 Where userId = ?),
             likeCounts As (
-                Select postId, Count(*) As heartsCount
+                Select postId, Count(*) As likeCount
                 From post_like
                 Group by postId),
             bookmarkCounts As(
@@ -57,6 +57,8 @@ public class TrendingService {
                 u.userId, u.firstName, u.lastName,
                 (Select ub.postId from userBookmarked ub where ub.postId = p.postId) as userBookmarkedPost,
                 (Select uh.postId from userHearted uh where uh.postId = p.postId) as userHeartedPost,
+                ifnull(lc.likeCount, 0) as heartsCount,
+                ifnull(bc.bookmarkCount, 0) as bookmarkCount,
                 ifnull(heartsCount, 0) + ifnull(bookmarkCount, 0) as totalScore
             from post p
             join user u on p.userId = u.userId
