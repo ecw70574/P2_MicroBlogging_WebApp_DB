@@ -150,6 +150,8 @@ public class PostService {
         User this_user = userService.getLoggedInUser();
         String logged_in_userId = this_user.getUserId();
 
+	// is current post bookmarked by current user?
+
 	final String findIfBookmarked = "SELECT EXISTS (SELECT 1 FROM bookmark b WHERE b.postId = ? AND b.userId = ?)";
 
 	boolean isBookmarked = false;
@@ -163,6 +165,23 @@ public class PostService {
 		}
 	    }
 	}
+
+	// is current post liked by current user?
+
+	final String findIfLiked = "SELECT EXISTS (SELECT 1 FROM post_like l WHERE l.postId = ? AND l.userId = ?)";
+
+	boolean isLiked = false;
+	try(Connection conn = dataSource.getConnection();
+	    PreparedStatement likeStmt = conn.prepareStatement(findIfLiked)) {
+	    likeStmt.setString(1,postId);
+	    likeStmt.setString(2,logged_in_userId);
+	    try(ResultSet rs = likeStmt.executeQuery()) {
+		if (rs.next()) {
+		    isLiked = rs.getBoolean(1);
+		}
+	    }
+	}
+	
         final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
         "from post p join user u on p.userId = u.userId where p.postId = ?" ;
 
@@ -194,7 +213,7 @@ public class PostService {
                     );
                     posts.add(post);
                     */
-                    posts.add(helpPost(rs, 0, 0, false, isBookmarked));
+                    posts.add(helpPost(rs, 0, 0, isLiked, isBookmarked));
                 }
             }
 	}
@@ -251,7 +270,7 @@ public class PostService {
     //adds a like to a post
     public boolean addLike(String userId, String postId) {
 
-        String sql = "insert ignore into post_like (user_id, post_id) values (?, ?)";
+        String sql = "insert ignore into post_like (userId, postId) values (?, ?)";
 
         try (Connection conn = dataSource.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -270,7 +289,7 @@ public class PostService {
 
         //removes a like from a post
     public boolean removeLike(String userId, String postId) {
-        String sql = "delete from post_like where user_id = ? and post_id = ?";
+        String sql = "delete from post_like where userId = ? and postId = ?";
 
         try (Connection conn = dataSource.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
