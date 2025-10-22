@@ -228,12 +228,36 @@ public class PostService {
      */
     public List<Post> getUserPosts(String userId) throws SQLException {
         List<Post> posts = new ArrayList<>();
-        final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
-        "from post p join user u on p.userId = u.userId where p.userId = ? order by p.postDate desc" ;
+        User this_user = userService.getLoggedInUser();
+        String logged_in_userId = this_user.getUserId();
 
+        final String getPostSql = "WITH userBookmarked AS ( SELECT postID	" +	//logged in user bookmarks
+                                                            "FROM bookmark " +
+                                                            "WHERE userID = ? " + 
+                                                          "), " +
+                                        "userHearted AS ( SELECT postID	" +	//logged in user hearts
+                                            "FROM post_like " +
+                                            "WHERE userID = ?" + 
+                                  ") " +
+                                  "SELECT p.postID, p.content, p.postDate, " +
+                                            "u.userID, u.firstName, u.lastName, " +
+                                            "(SELECT ub.postID " +
+                                                "FROM userBookmarked AS ub " +
+                                                "WHERE ub.postID = p.postID) " + 
+                                            "AS userBookmarkedPost, " +
+                                            "(SELECT uh.postID " +
+                                                "FROM userHearted AS uh " +
+                                                "WHERE uh.postID = p.postID) " + 
+                                            "AS userHeartedPost " +
+                                  "FROM post AS p, user AS u " +
+                                  "WHERE p.userID = u.userID " +
+                                    "AND p.userID = ? " +
+                                  "ORDER BY p.postDate DESC;";
         try(Connection conn = dataSource.getConnection();
         PreparedStatement postStmt = conn.prepareStatement(getPostSql)) {//passes sql query
-            postStmt.setString(1, userId);
+            postStmt.setString(1, logged_in_userId);
+            postStmt.setString(2, logged_in_userId);
+            postStmt.setString(3, userId);
         
             try(ResultSet rs = postStmt.executeQuery()) {
                 while (rs.next()) {
@@ -259,7 +283,15 @@ public class PostService {
                     );
                     posts.add(post); 
                     */
-                    posts.add(helpPost(rs, 0, 0, false, false));
+                    boolean isBookmarked = false;
+                    if (rs.getString("userBookmarkedPost") != null) {
+                        isBookmarked = true;
+                    }
+                    boolean isHearted = false;
+                    if (rs.getString("userHeartedPost") != null) {
+                        isHearted = true;
+                    }
+                    posts.add(helpPost(rs, 0, 0, isHearted, isBookmarked));
                 }
             }
         }
