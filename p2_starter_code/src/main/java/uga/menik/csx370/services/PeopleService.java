@@ -11,6 +11,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
@@ -61,13 +64,17 @@ public class PeopleService {
                     // since ID is unique
                     while (rs.next()) {
 
-			// String last_active_field = rs.getString("lastActiveDate");
-            Timestamp last_active_timestamp = rs.getTimestamp("lastActiveDate");
-            // convert to Eastern time
-            LocalDateTime correctedEastern = last_active_timestamp.toLocalDateTime().minusHours(4);
-			if (correctedEastern == null || correctedEastern.trim().isEmpty()) {
-			    correctedEastern = "Never";
-			}			    
+                        // String last_active_field = rs.getString("lastActiveDate");
+                        Timestamp last_active_timestamp = rs.getTimestamp("lastActiveDate");
+
+                        if (last_active_timestamp == null || last_active_timestamp.trim().isEmpty()) {
+                            last_active_timestamp = "Never"; // user never made a post
+                        } else {
+                            // convert to Eastern time
+                            LocalDateTime correctedEastern = last_active_timestamp.toLocalDateTime().minusHours(4);
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
+                            formattedLastActive = easternTime.format(formatter);
+                        }			    
                         // Note: rs.get.. functions access attributes of the current row.
                         // Access rows and their attributes
                         // from the query result.
@@ -76,7 +83,7 @@ public class PeopleService {
                             rs.getString("firstName"),
                             rs.getString("lastName"),
                             true,
-                            correctedEastern
+                            formattedLastActive
                         ));
                     } //while
                 } //try
