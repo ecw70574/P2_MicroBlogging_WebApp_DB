@@ -31,8 +31,6 @@ public class PostService {
         this.dataSource = dataSource;
         this.userService = userService;
     }
-
-    
     
     /**
      * This function should create new posts.
@@ -61,124 +59,89 @@ public class PostService {
     public List<Post> getPosts() throws SQLException {
         List<Post> posts = new ArrayList<>();
 
-        // in bookmarked table
+        // in bookmarked table and in liked table 
 
         User this_user = userService.getLoggedInUser();
         String logged_in_userId = this_user.getUserId();
+        final String bookmarked_liked_posts = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
+            "FROM post p " +
+            "JOIN user u ON p.userId = u.userId " +
+            "WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
+            "and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
+
+        try(Connection conn = dataSource.getConnection();
+        PreparedStatement isBooked1 = conn.prepareStatement(bookmarked_liked_posts)) { //passes sql query
+            isBooked1.setString(1, logged_in_userId);
+            isBooked1.setString(2, logged_in_userId);
+            try(ResultSet rs = isBooked1.executeQuery()) {
+                while (rs.next()) {
+                    posts.add(helpPost(rs, 0, 0, true, true)); // isHearted = true, isBookmarked = true
+                }
+            }
+        }
+        // in bookmarked table but not in liked table 
+
+        final String bookmarked_notliked = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
+            "FROM post p " +
+            "JOIN user u ON p.userId = u.userId " +
+            "WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
+            "and p.postId NOT IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
+
+        /* 
         final String bookmarked_posts = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
             "WHERE p.postId IN ( " +
                 "SELECT b.postId FROM bookmark b WHERE b.userId = ? )";
-        
+        */
 
         try(Connection conn = dataSource.getConnection();
-        PreparedStatement isBooked = conn.prepareStatement(bookmarked_posts)) { //passes sql query
-            isBooked.setString(1, logged_in_userId);
-            try(ResultSet rs = isBooked.executeQuery()) {
+        PreparedStatement isBooked2 = conn.prepareStatement(bookmarked_notliked)) { //passes sql query
+            isBooked2.setString(1, logged_in_userId);
+            isBooked2.setString(2, logged_in_userId);
+            try(ResultSet rs = isBooked2.executeQuery()) {
                 while (rs.next()) {
-                    /* User user = new User(
-                        rs.getString("userId"),
-                        rs.getString("firstName"),
-                        rs.getString("lastName")
-                        );
-
-                    Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
-                    //convert to Eastern time: -4 hours
-                    LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
-                    
-                    Post post = new Post(
-                        rs.getString("postId"),
-                        rs.getString("content"),
-                        correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
-                        user,
-                        0,
-                        0,
-                        false,
-                        true
-                    );
-                    posts.add(post);
-                    */
-                    posts.add(helpPost(rs, 0, 0, false, true));
+                    posts.add(helpPost(rs, 0, 0, false, true)); // isHearted = false, isBookmarked = true
                 }
             }
         }
 
-
-        final String not_bookmarked_posts = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
+        // not in bookmarked table but in liked table
+        final String notbook_haslike = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
-            "WHERE p.postId NOT IN ( " +
-                "SELECT b.postId FROM bookmark b WHERE b.userId = ? )";
+            "WHERE p.postId NOT IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
+            "and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
 
         try(Connection conn = dataSource.getConnection();
-        PreparedStatement isnotBooked = conn.prepareStatement(not_bookmarked_posts)) { //passes sql query
-            isnotBooked.setString(1, logged_in_userId);
-            try(ResultSet rs = isnotBooked.executeQuery()) {
+        PreparedStatement isnotBooked1 = conn.prepareStatement(notbook_haslike)) { //passes sql query
+            isnotBooked1.setString(1, logged_in_userId);
+            isnotBooked1.setString(2, logged_in_userId);
+            try(ResultSet rs = isnotBooked1.executeQuery()) {
                 while (rs.next()) {
-                    /* User user = new User(
-                        rs.getString("userId"),
-                        rs.getString("firstName"),
-                        rs.getString("lastName")
-                        );
+                    posts.add(helpPost(rs, 0, 0, true, false)); // isHearted = true, isBookmarked = false
+                }
+            }
+        }
 
-                    Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
-                    //convert to Eastern time: -4 hours
-                    LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
-                    
-                    Post post = new Post(
-                        rs.getString("postId"),
-                        rs.getString("content"),
-                        correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
-                        user,
-                        0,
-                        0,
-                        false,
-                        false
-                    );
-                    posts.add(post);
-                    */
+        // not in bookmarked table and not in liked table
+        final String notbook_nolike = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
+            "FROM post p " +
+            "JOIN user u ON p.userId = u.userId " +
+            "WHERE p.postId NOT IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
+            "and p.postId NOT IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
+
+        try(Connection conn = dataSource.getConnection();
+        PreparedStatement isnotBooked2 = conn.prepareStatement(notbook_nolike)) { //passes sql query
+            isnotBooked2.setString(1, logged_in_userId);
+            isnotBooked2.setString(2, logged_in_userId);
+            try(ResultSet rs = isnotBooked2.executeQuery()) {
+                while (rs.next()) {
                     posts.add(helpPost(rs, 0, 0, false, false));
                 }
             }
         }
 
-/*
-
-
-        final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
-        "from post p join user u on p.userId = u.userId order by p.postDate desc" ;
-
-        try(Connection conn = dataSource.getConnection();
-        PreparedStatement postStmt = conn.prepareStatement(getPostSql)) { //passes sql query
-
-            try(ResultSet rs = postStmt.executeQuery()) {
-                while (rs.next()) {
-                    User user = new User(
-                        rs.getString("userId"),
-                        rs.getString("firstName"),
-                        rs.getString("lastName")
-                        );
-
-                    Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
-                    //convert to Eastern time: -4 hours
-                    LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
-                    
-                    Post post = new Post(
-                        rs.getString("postId"),
-                        rs.getString("content"),
-                        correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
-                        user,
-                        0,
-                        0,
-                        false,
-                        false
-                    );
-                    posts.add(post);
-                }
-            }
-        }
-*/
         return posts;
     }
 
@@ -287,6 +250,7 @@ public class PostService {
 
     //adds a like to a post
     public boolean addLike(String userId, String postId) {
+
         String sql = "insert ignore into post_like (user_id, post_id) values (?, ?)";
 
         try (Connection conn = dataSource.getConnection();
