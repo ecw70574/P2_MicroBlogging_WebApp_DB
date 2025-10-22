@@ -146,7 +146,7 @@ public class BookmarksService {
         */
 
         final String getBookMarkedSql = 
-        "select count(distinct pl.userId) as heartsCount, p.postId, b.authorId, p.content, p.postDate, u.firstName as authorFN, u.lastName as authorLN, " +
+        "select count(distinct pl.userId) as heartsCount, p.postId, b.authorId as userId, p.content, p.postDate, u.firstName as authorFN, u.lastName as authorLN, " +
         "exists (select 1 from post_like pl2 where pl2.postId = p.postId and pl2.userId = ?) as isLiked " +
         "from bookmark b " +
         "join post p on p.postId = b.postId " +  
