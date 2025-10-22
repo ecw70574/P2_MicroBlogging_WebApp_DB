@@ -59,33 +59,108 @@ public class PostService {
     public List<Post> getPosts() throws SQLException {
         List<Post> posts = new ArrayList<>();
 
-        // in bookmarked table and in liked table 
+        // 1) in bookmarked table and in liked table 
 
         User this_user = userService.getLoggedInUser();
         String logged_in_userId = this_user.getUserId();
-        final String bookmarked_liked_posts = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
+        final String bookmarked_liked_posts = "WITH userBookmarked AS ( SELECT postID	" +	//logged in user bookmarks
+                                                                        "FROM bookmark " +  
+                                                                        "WHERE userID = ? " + //logged in user
+                                                                        "), " +
+                                                    "userHearted AS ( SELECT postID	" +	//logged in user hearts
+                                                                "FROM post_like " +
+                                                                        "WHERE userID = ?" + //logged in user
+                                                ") " +
+                                                "SELECT p.postId, p.content, p.userId, p.postDate, " +
+                                                    "u.userID, u.firstName, u.lastName, " + 
+                                                    "(SELECT ub.postID " + //get bookmarked post ids by logged in user
+                                                        "FROM userBookmarked AS ub " +
+                                                        "WHERE ub.postID = p.postID) " + //filter by the postID
+                                                        "AS userBookmarkedPost, " + //use this alias for boolean isBookmarked in helper method
+                                                    "(SELECT uh.postID " + //get hearted post ids by logged in user
+                                                        "FROM userHearted AS uh " +
+                                                        "WHERE uh.postID = p.postID) " + //filter by the postID
+                                                        "AS userHeartedPost, " + //use this alias for boolean isHearted in helper method
+                                                    "(SELECT COUNT(*) " + //get count of hearts for posts
+                                                        "FROM post_like AS pl " + 
+                                                        "WHERE pl.postID = p.postID)" + //post like for posts
+                                                            "AS heartsCount " + //use this alias for int heartsCount in helper method
+                                                    // once comments in implemented:
+                                                    // (SELECT COUNT(*) FROM comments AS c WHERE c.postID = p.postID) AS commentsCount
+                                                    "FROM post p " +
+                                                    "JOIN user u ON p.userId = u.userId " +
+                                                    "WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
+                                                    "and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
+        
+        /* "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
             "WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
             "and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
+        */
 
         try(Connection conn = dataSource.getConnection();
         PreparedStatement isBooked1 = conn.prepareStatement(bookmarked_liked_posts)) { //passes sql query
             isBooked1.setString(1, logged_in_userId);
             isBooked1.setString(2, logged_in_userId);
+            isBooked1.setString(3, logged_in_userId);
+            isBooked1.setString(4, logged_in_userId);
             try(ResultSet rs = isBooked1.executeQuery()) {
                 while (rs.next()) {
-                    posts.add(helpPost(rs, 0, 0, true, true)); // isHearted = true, isBookmarked = true
+                    //set helper method parameters
+                    boolean isBookmarked = false; //determine if new Post object is bookmarked
+                    if (rs.getString("userBookmarkedPost") != null) { //if exists, than true
+                        isBookmarked = true; 
+                    } //if
+                    boolean isHearted = false; //determine if new Post object is hearted
+                    if (rs.getString("userHeartedPost") != null) { //if exists, than true
+                        isHearted = true;
+                    } //if
+                    int heartsCount = rs.getInt("heartsCount");
+                    //once comments is implemented:
+                    //int commentsCount = rs.getInt("heartsCount");
+                    posts.add(helpPost(rs, heartsCount, 0, isHearted, isBookmarked)); // isHearted = true, isBookmarked = true
                 }
             }
         }
-        // in bookmarked table but not in liked table 
+        // 2) in bookmarked table but not in liked table 
 
-        final String bookmarked_notliked = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
+        final String bookmarked_notliked = "WITH userBookmarked AS ( SELECT postID	" +	//logged in user bookmarks
+                                                                    "FROM bookmark " +  
+                                                                    "WHERE userID = ? " + //logged in user
+                                                                    "), " +
+                                                "userHearted AS ( SELECT postID	" +	//logged in user hearts
+                                                            "FROM post_like " +
+                                                                    "WHERE userID = ?" + //logged in user
+                                            ") " +
+                                            "SELECT p.postId, p.content, p.userId, p.postDate, " +
+                                                "u.userID, u.firstName, u.lastName, " + 
+                                                "(SELECT ub.postID " + //get bookmarked post ids by logged in user
+                                                    "FROM userBookmarked AS ub " +
+                                                    "WHERE ub.postID = p.postID) " + //filter by the postID
+                                                    "AS userBookmarkedPost, " + //use this alias for boolean isBookmarked in helper method
+                                                "(SELECT uh.postID " + //get hearted post ids by logged in user
+                                                    "FROM userHearted AS uh " +
+                                                    "WHERE uh.postID = p.postID) " + //filter by the postID
+                                                    "AS userHeartedPost, " + //use this alias for boolean isHearted in helper method
+                                                "(SELECT COUNT(*) " + //get count of hearts for posts
+                                                    "FROM post_like AS pl " + 
+                                                    "WHERE pl.postID = p.postID)" + //post like for posts
+                                                        "AS heartsCount " + //use this alias for int heartsCount in helper method
+                                                // once comments in implemented:
+                                                // (SELECT COUNT(*) FROM comments AS c WHERE c.postID = p.postID) AS commentsCount
+                                                "FROM post p " +
+                                                "JOIN user u ON p.userId = u.userId " +
+                                                "WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
+                                                    "and p.postId NOT IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
+
+        
+        /* "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
             "WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
             "and p.postId NOT IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
+        */
 
         /* 
         final String bookmarked_posts = "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
@@ -99,8 +174,11 @@ public class PostService {
         PreparedStatement isBooked2 = conn.prepareStatement(bookmarked_notliked)) { //passes sql query
             isBooked2.setString(1, logged_in_userId);
             isBooked2.setString(2, logged_in_userId);
+            isBooked2.setString(3, logged_in_userId);
+            isBooked2.setString(4, logged_in_userId);
             try(ResultSet rs = isBooked2.executeQuery()) {
                 while (rs.next()) {
+                    //NEED to set like in prev!!!!!!!!!!!!!!!!!!!
                     posts.add(helpPost(rs, 0, 0, false, true)); // isHearted = false, isBookmarked = true
                 }
             }
