@@ -232,27 +232,27 @@ public class PostService {
         String logged_in_userId = this_user.getUserId();
 
         final String getPostSql = "WITH userBookmarked AS ( SELECT postID	" +	//logged in user bookmarks
-                                                            "FROM bookmark " +
-                                                            "WHERE userID = ? " + 
+                                                            "FROM bookmark " + 
+                                                            "WHERE userID = ? " + //logged in user
                                                           "), " +
                                         "userHearted AS ( SELECT postID	" +	//logged in user hearts
                                             "FROM post_like " +
-                                            "WHERE userID = ?" + 
+                                            "WHERE userID = ?" + //logged in user
                                   ") " +
-                                  "SELECT p.postID, p.content, p.postDate, " +
-                                            "u.userID, u.firstName, u.lastName, " +
-                                            "(SELECT ub.postID " +
+                                  "SELECT p.postID, p.content, p.postDate, " + //post info needed for post object
+                                            "u.userID, u.firstName, u.lastName, " + //user info needed for user object
+                                            "(SELECT ub.postID " + //get bookmarked posts
                                                 "FROM userBookmarked AS ub " +
                                                 "WHERE ub.postID = p.postID) " + 
                                             "AS userBookmarkedPost, " +
-                                            "(SELECT uh.postID " +
+                                            "(SELECT uh.postID " + //get hearted posts
                                                 "FROM userHearted AS uh " +
                                                 "WHERE uh.postID = p.postID) " + 
                                             "AS userHeartedPost " +
-                                  "FROM post AS p, user AS u " +
+                                  "FROM post AS p, user AS u " + //join post and user
                                   "WHERE p.userID = u.userID " +
-                                    "AND p.userID = ? " +
-                                  "ORDER BY p.postDate DESC;";
+                                    "AND p.userID = ? " + //of the specified userID user
+                                  "ORDER BY p.postDate DESC;"; //newest posts at top
         try(Connection conn = dataSource.getConnection();
         PreparedStatement postStmt = conn.prepareStatement(getPostSql)) {//passes sql query
             postStmt.setString(1, logged_in_userId);
