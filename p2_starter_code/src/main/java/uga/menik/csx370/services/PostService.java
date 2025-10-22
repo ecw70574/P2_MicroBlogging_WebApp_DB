@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import uga.menik.csx370.models.Comment;
 import uga.menik.csx370.models.Post;
-import uga.menik.csx370.models.ExtendedPost;
+import uga.menik.csx370.models.ExpandedPost;
 import uga.menik.csx370.models.User;
 
 /**
@@ -299,7 +299,7 @@ public class PostService {
         "WHERE p.postId = ? " +
         "GROUP BY p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName";
 
-        List<String> comments_on_post = getCommentsByPostId(postId);
+        List<Comment> comments_on_post = getCommentsByPostId(postId);
 
         try(Connection conn = dataSource.getConnection();
         PreparedStatement postStmt = conn.prepareStatement(getPostSql)) { //passes sql query
@@ -317,7 +317,7 @@ public class PostService {
                     //convert to Eastern time: -4 hours
                     LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
                     
-                    Post post = new ExtendedPost(
+                    Post post = new ExpandedPost(
                         rs.getString("postId"),
                         rs.getString("content"),
                         correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
@@ -502,7 +502,7 @@ public class PostService {
 
     public List<Comment> getCommentsByPostId(String postId) throws SQLException {
         List<Comment> comments = new ArrayList<>();
-        final String commentSql = "Select c.commentId, c.content, c.commentDate, u.firstName, u.lastName" +
+        final String commentSql = "Select c.commentId, c.content, c.commentDate, u.userId, u.firstName, u.lastName " +
             "From comment c Join user u ON c.commenterId = u.userId Where c.postId = ? order by c.commentDate desc";
 
         try(Connection conn = dataSource.getConnection();
