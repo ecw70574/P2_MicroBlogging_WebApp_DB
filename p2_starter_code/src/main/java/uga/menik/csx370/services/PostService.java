@@ -287,14 +287,12 @@ public class PostService {
         "and join post_like pl where pl.postId = p.postId";
          */
 
-        final String getPostSql = "SELECT COALESCE(COUNT(DISTINCT pl.userId), 0) as heartsCount, p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
+        final String getPostSql = "SELECT COUNT(DISTINCT pl.userId) as heartsCount, p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
         "FROM post p " + 
         "JOIN user u on p.userId = u.userId " +
         "LEFT JOIN post_like pl ON pl.postId = p.postId " + 
         "WHERE p.postId = ? " +
         "GROUP BY p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName";
-
-        
 
         try(Connection conn = dataSource.getConnection();
         PreparedStatement postStmt = conn.prepareStatement(getPostSql)) { //passes sql query
