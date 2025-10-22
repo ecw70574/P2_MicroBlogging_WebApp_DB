@@ -35,6 +35,8 @@ public class Post extends BasicPost {
      * Flag to specify whether to show comments or not.
      */
     protected boolean isShowComents;
+    
+    private final String postDate;
 
     /**
      * Constructs a Post with specified details including information from BasicPost.
@@ -55,6 +57,7 @@ public class Post extends BasicPost {
         this.isHearted = isHearted;
         this.isBookmarked = isBookmarked;
         this.isShowComents = false;
+        this.postDate = postDate;
     }
 
     /**
@@ -91,6 +94,15 @@ public class Post extends BasicPost {
      */
     public boolean isBookmarked() {
         return isBookmarked;
+    }
+
+    /**
+    * Returns post date
+    *
+    * @return post date
+    */
+    public String getPostDate() {
+        return postDate;
     }
 
 }

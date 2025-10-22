@@ -141,7 +141,16 @@ public class PostService {
                 }
             }
         }
-
+        //sort the posts by newest to oldest
+        DateTimeFormatter dateFormatToGet = DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a"); // format String for LocalDateTime
+        posts.sort((post1, post2) -> { //compare any 2 post objects
+            String post1Date = post1.getPostDate(); //get first post date as string
+            String post2Date = post2.getPostDate(); //get second post date as string
+            LocalDateTime postdateFormatToGet1 = LocalDateTime.parse(post1Date, dateFormatToGet); //convert to LocalDateTime
+            LocalDateTime postdateFormatToGet2 = LocalDateTime.parse(post2Date, dateFormatToGet); //convert to LocalDateTime
+            return postdateFormatToGet2.compareTo(postdateFormatToGet1); //compare post 2 to 1 to get newest first
+        });
+        
         return posts;
     }
 
