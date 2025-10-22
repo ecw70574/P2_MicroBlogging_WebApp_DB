@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import uga.menik.csx370.models.Comment;
 import uga.menik.csx370.models.Post;
+import uga.menik.csx370.models.ExtendedPost;
 import uga.menik.csx370.models.User;
 
 /**
@@ -298,13 +299,15 @@ public class PostService {
         "WHERE p.postId = ? " +
         "GROUP BY p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName";
 
+        List<String> comments_on_post = getCommentsByPostId(postId);
+
         try(Connection conn = dataSource.getConnection();
         PreparedStatement postStmt = conn.prepareStatement(getPostSql)) { //passes sql query
             postStmt.setString(1, postId);
 
             try(ResultSet rs = postStmt.executeQuery()) {
                 while (rs.next()) {
-                    /* User user = new User(
+                    User user = new User(
                         rs.getString("userId"),
                         rs.getString("firstName"),
                         rs.getString("lastName")
@@ -314,17 +317,18 @@ public class PostService {
                     //convert to Eastern time: -4 hours
                     LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
                     
-                    Post post = new Post(
+                    Post post = new ExtendedPost(
                         rs.getString("postId"),
                         rs.getString("content"),
                         correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
                         user,
+                        rs.getInt("heartsCount"),
                         0,
-                        0,
-                        false,
-                        false
+                        isLiked,
+                        isBookmarked,
+                        comments_on_post
                     );
-                    posts.add(post);
+                    posts.add(post); /*
                     
                     //set helper method parameters
                     isBookmarked = false; //determine if new Post object is bookmarked
@@ -335,12 +339,13 @@ public class PostService {
                     if (rs.getString("userHeartedPost") != null) { //if exists, than true
                         isLiked = true;
                     } //if
-                    */
+                    
                     int heartsCount = rs.getInt("heartsCount");
                     //once comments is implemented:
                     //int commentsCount = rs.getInt("heartsCount");
                     posts.add(helpPost(rs, heartsCount, 0, isLiked, isBookmarked));
                     // posts.add(helpPost(rs, 0, 0, isLiked, isBookmarked));
+                    */
                 }
             }
 	}
