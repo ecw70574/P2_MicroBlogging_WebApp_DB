@@ -313,7 +313,20 @@ public class PostService {
                     );
                     posts.add(post);
                     */
-                    posts.add(helpPost(rs, 0, 0, isLiked, isBookmarked));
+                    //set helper method parameters
+                    isBookmarked = false; //determine if new Post object is bookmarked
+                    if (rs.getString("userBookmarkedPost") != null) { //if exists, than true
+                        isBookmarked = true; 
+                    } //if
+                    isLiked = false; //determine if new Post object is hearted
+                    if (rs.getString("userHeartedPost") != null) { //if exists, than true
+                        isLiked = true;
+                    } //if
+                    int heartsCount = rs.getInt("heartsCount");
+                    //once comments is implemented:
+                    //int commentsCount = rs.getInt("heartsCount");
+                    posts.add(helpPost(rs, heartsCount, 0, isLiked, isBookmarked));
+                    // posts.add(helpPost(rs, 0, 0, isLiked, isBookmarked));
                 }
             }
 	}
