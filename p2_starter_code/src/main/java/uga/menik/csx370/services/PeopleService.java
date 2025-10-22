@@ -14,7 +14,8 @@ import java.util.List;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import java.sql.Timestamp;
-
+import java.time.ZonedDateTime;
+import java.time.ZoneId; 
 import javax.sql.DataSource;
 
 import org.springframework.stereotype.Service;
@@ -44,7 +45,8 @@ public class PeopleService {
 
         // get the users that we do follow - sql query 
         final String doesfollowSql = "SELECT u.userId, u.firstName, u.lastName, " +
-	"COALESCE ((SELECT MAX(p.postDate) FROM post p WHERE p.userId = u.userId), '') AS lastActiveDate " +
+	"(SELECT MAX(STR_TO_DATE(p.postDate, '%Y-%m-%d %H:%i:%s')) " +
+	"FROM post p WHERE p.userId = u.userId) AS lastActiveDate " +
         "FROM user u join follow f " +
         "on u.userId = f.followeeId " + 
         "WHERE f.followeeId <> ? and f.followerId = ?"; // the logged in user is always the follower and never the followee
@@ -72,9 +74,12 @@ public class PeopleService {
                             formattedLastActive = "Never"; // user never made a post
                         } else {
                             // convert to Eastern time
-                            LocalDateTime correctedEastern = last_active_timestamp.toLocalDateTime().minusHours(4);
-                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
-                            formattedLastActive = correctedEastern.format(formatter);
+			    LocalDateTime utcTime = last_active_timestamp.toLocalDateTime();
+			    ZonedDateTime easternTime = utcTime.atZone(ZoneId.of("UTC"))
+				.withZoneSameInstant(ZoneId.of("America/New_York"));
+			    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
+
+                            formattedLastActive = easternTime.format(formatter);
                         }			    
                         // Note: rs.get.. functions access attributes of the current row.
                         // Access rows and their attributes
@@ -94,7 +99,8 @@ public class PeopleService {
 
         // users that we dont follow
         final String doesNotfollowSql = "SELECT u.userId, u.firstName, u.lastName, " +
-	"COALESCE ((SELECT MAX(p.postDate) FROM post p WHERE p.userId = u.userId), '') AS lastActiveDate " + 
+	"(SELECT MAX(STR_TO_DATE(p.postDate, '%Y-%m-%d %H:%i:%s')) " +
+        "FROM post p WHERE p.userId = u.userId) AS lastActiveDate " + 
         "FROM user u " +
         "WHERE u.userId NOT IN ( " +
         "SELECT f.followeeId FROM follow f WHERE f.followerId = ?) " +
@@ -113,19 +119,29 @@ public class PeopleService {
                     // Note: rs.get.. functions access attributes of the current row.
                     // Access rows and their attributes
                     // from the query result.
-		    String last_active_field = rs.getString("lastActiveDate");
-		    if (last_active_field == null || last_active_field.trim().isEmpty()) {
-			last_active_field = "Never";
-		    }
+                        Timestamp last_active_timestamp = rs.getTimestamp("lastActiveDate");
+                        String formattedLastActive;
+
+                        if (last_active_timestamp == null ) {
+                            formattedLastActive = "Never"; // user never made a post                                
+                        } else {
+                            // convert to Eastern time                                                              
+                            LocalDateTime utcTime = last_active_timestamp.toLocalDateTime();
+                            ZonedDateTime easternTime = utcTime.atZone(ZoneId.of("UTC"))
+                                .withZoneSameInstant(ZoneId.of("America/New_York"));
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
+
+                            formattedLastActive = easternTime.format(formatter);
+                        }
 			
                     followableUsers.add(new FollowableUser (
                         rs.getString("userId"),
                         rs.getString("firstName"),
                         rs.getString("lastName"),
                         false,
-                        last_active_field
+                        formattedLastActive
                     ));
-                } //while
+                } // try
             } //try
         } catch (SQLException e) {
             System.out.println(e);
