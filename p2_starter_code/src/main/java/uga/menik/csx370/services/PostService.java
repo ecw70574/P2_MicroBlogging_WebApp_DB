@@ -64,35 +64,35 @@ public class PostService {
 
         User this_user = userService.getLoggedInUser();
         String logged_in_userId = this_user.getUserId();
-        final String bookmarked_liked_posts = "WITH userBookmarked AS ( SELECT postID	" +	//logged in user bookmarks
+        final String bookmarked_liked_posts = "WITH userBookmarked AS ( SELECT postId	" +	//logged in user bookmarks
                                                                         "FROM bookmark " +  
-                                                                        "WHERE userID = ? " + //logged in user
+                                                                        "WHERE userId = ? " + //logged in user
                                                                         "), " +
-                                                    "userHearted AS ( SELECT postID	" +	//logged in user hearts
+                                                    "userHearted AS ( SELECT postId	" +	//logged in user hearts
                                                                 "FROM post_like " +
-                                                                        "WHERE userID = ?" + //logged in user
+                                                                        "WHERE userId = ?" + //logged in user
                                                 ") " +
                                                 "SELECT p.postId, p.content, p.userId, p.postDate, " +
                                                     "u.userID, u.firstName, u.lastName, " + 
                                                     "(SELECT ub.postID " + //get bookmarked post ids by logged in user
                                                         "FROM userBookmarked AS ub " +
-                                                        "WHERE ub.postID = p.postID) " + //filter by the postID
+                                                        "WHERE ub.postId = p.postId) " + //filter by the postID
                                                         "AS userBookmarkedPost, " + //use this alias for boolean isBookmarked in helper method
-                                                    "(SELECT uh.postID " + //get hearted post ids by logged in user
+                                                    "(SELECT uh.postId " + //get hearted post ids by logged in user
                                                         "FROM userHearted AS uh " +
-                                                        "WHERE uh.postID = p.postID) " + //filter by the postID
+                                                        "WHERE uh.postId = p.postId) " + //filter by the postID
                                                         "AS userHeartedPost, " + //use this alias for boolean isHearted in helper method
                                                     "(SELECT COUNT(*) " + //get count of hearts for posts
                                                         "FROM post_like AS pl " + 
-                                                        "WHERE pl.postID = p.postID)" + //post like for posts
+                                                        "WHERE pl.postId = p.postId) " + //post like for posts
                                                             "AS heartsCount " + //use this alias for int heartsCount in helper method
                                                     // once comments in implemented:
                                                     // (SELECT COUNT(*) FROM comments AS c WHERE c.postID = p.postID) AS commentsCount
                                                     "FROM post p " +
                                                     "JOIN user u ON p.userId = u.userId " +
-                                                    "ORDER BY p.postDate DESC";
-                                                    // "WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
-                                                    // "and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
+                                                    "ORDER BY p.postDate DESC ";
+                                                    //"WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
+                                                    //"and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
         
         /* "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
             "FROM post p " +
@@ -128,8 +128,9 @@ public class PostService {
             }
         }
 
-        /* 
+        
         // 2) in bookmarked table but not in liked table 
+        /* 
 
         final String bookmarked_notliked = "WITH userBookmarked AS ( SELECT postID	" +	//logged in user bookmarks
                                                                     "FROM bookmark " +  
