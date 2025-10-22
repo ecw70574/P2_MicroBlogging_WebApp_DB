@@ -90,9 +90,9 @@ public class PostService {
                                                     // (SELECT COUNT(*) FROM comments AS c WHERE c.postID = p.postID) AS commentsCount
                                                     "FROM post p " +
                                                     "JOIN user u ON p.userId = u.userId " +
-                                                    "WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
-                                                    "and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)" + 
-                                                    "and p.userId IN (SELECT f.followeeId FROM follow f WHERE f.followerId = ?)";
+                                                    "ORDER BY p.postDate DESC";
+                                                    // "WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
+                                                    // "and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
         
         /* "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
             "FROM post p " +
@@ -127,6 +127,8 @@ public class PostService {
                 }
             }
         }
+
+        /* 
         // 2) in bookmarked table but not in liked table 
 
         final String bookmarked_notliked = "WITH userBookmarked AS ( SELECT postID	" +	//logged in user bookmarks
@@ -174,7 +176,7 @@ public class PostService {
             "WHERE p.postId IN ( " +
                 "SELECT b.postId FROM bookmark b WHERE b.userId = ? )";
         */
-
+        /* 
         try(Connection conn = dataSource.getConnection();
         PreparedStatement isBooked2 = conn.prepareStatement(bookmarked_notliked)) { //passes sql query
             isBooked2.setString(1, logged_in_userId);
@@ -241,6 +243,7 @@ public class PostService {
             LocalDateTime postdateFormatToGet2 = LocalDateTime.parse(post2Date, dateFormatToGet); //convert to LocalDateTime
             return postdateFormatToGet2.compareTo(postdateFormatToGet1); //compare post 2 to 1 to get newest first
         });
+        */
         
         return posts;
     }
