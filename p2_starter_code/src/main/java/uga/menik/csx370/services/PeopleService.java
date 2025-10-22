@@ -66,14 +66,15 @@ public class PeopleService {
 
                         // String last_active_field = rs.getString("lastActiveDate");
                         Timestamp last_active_timestamp = rs.getTimestamp("lastActiveDate");
+                        String formattedLastActive;
 
                         if (last_active_timestamp == null ) {
-                            last_active_timestamp = "Never"; // user never made a post
+                            formattedLastActive = "Never"; // user never made a post
                         } else {
                             // convert to Eastern time
                             LocalDateTime correctedEastern = last_active_timestamp.toLocalDateTime().minusHours(4);
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
-                            formattedLastActive = easternTime.format(formatter);
+                            formattedLastActive = correctedEastern.format(formatter);
                         }			    
                         // Note: rs.get.. functions access attributes of the current row.
                         // Access rows and their attributes
