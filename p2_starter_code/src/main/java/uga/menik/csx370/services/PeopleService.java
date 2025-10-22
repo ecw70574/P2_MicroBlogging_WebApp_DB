@@ -67,7 +67,7 @@ public class PeopleService {
                         // String last_active_field = rs.getString("lastActiveDate");
                         Timestamp last_active_timestamp = rs.getTimestamp("lastActiveDate");
 
-                        if (last_active_timestamp == null || last_active_timestamp.trim().isEmpty()) {
+                        if (last_active_timestamp == null ) {
                             last_active_timestamp = "Never"; // user never made a post
                         } else {
                             // convert to Eastern time
