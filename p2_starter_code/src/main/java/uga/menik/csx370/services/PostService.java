@@ -91,7 +91,8 @@ public class PostService {
                                                     "FROM post p " +
                                                     "JOIN user u ON p.userId = u.userId " +
                                                     "WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
-                                                    "and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
+                                                    "and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)" + 
+                                                    "and p.userId IN (SELECT f.followeeId FROM follow f WHERE f.followerId = ?)";
         
         /* "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
             "FROM post p " +
@@ -106,6 +107,8 @@ public class PostService {
             isBooked1.setString(2, logged_in_userId);
             isBooked1.setString(3, logged_in_userId);
             isBooked1.setString(4, logged_in_userId);
+            isBooked1.setString(5, logged_in_userId);
+
             try(ResultSet rs = isBooked1.executeQuery()) {
                 while (rs.next()) {
                     //set helper method parameters
@@ -153,7 +156,8 @@ public class PostService {
                                                 "FROM post p " +
                                                 "JOIN user u ON p.userId = u.userId " +
                                                 "WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
-                                                    "and p.postId NOT IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
+                                                    "and p.postId NOT IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)"+ 
+                                                    "and p.userId IN (SELECT f.followeeId FROM follow f WHERE f.followerId = ?)";
 
         
         /* "SELECT p.postId, p.content, p.userId, p.postDate, u.firstName, u.lastName " + 
@@ -177,6 +181,8 @@ public class PostService {
             isBooked2.setString(2, logged_in_userId);
             isBooked2.setString(3, logged_in_userId);
             isBooked2.setString(4, logged_in_userId);
+            isBooked2.setString(5, logged_in_userId);
+
             try(ResultSet rs = isBooked2.executeQuery()) {
                 while (rs.next()) {
                     //NEED to set like in prev!!!!!!!!!!!!!!!!!!!
@@ -190,12 +196,15 @@ public class PostService {
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
             "WHERE p.postId NOT IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
-            "and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
+            "and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)"+ 
+            "and p.userId IN (SELECT f.followeeId FROM follow f WHERE f.followerId = ?)";
 
         try(Connection conn = dataSource.getConnection();
         PreparedStatement isnotBooked1 = conn.prepareStatement(notbook_haslike)) { //passes sql query
             isnotBooked1.setString(1, logged_in_userId);
             isnotBooked1.setString(2, logged_in_userId);
+            isnotBooked1.setString(3, logged_in_userId);
+
             try(ResultSet rs = isnotBooked1.executeQuery()) {
                 while (rs.next()) {
                     posts.add(helpPost(rs, 0, 0, true, false)); // isHearted = true, isBookmarked = false
@@ -208,12 +217,15 @@ public class PostService {
             "FROM post p " +
             "JOIN user u ON p.userId = u.userId " +
             "WHERE p.postId NOT IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
-            "and p.postId NOT IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
+            "and p.postId NOT IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)"+ 
+            "and p.userId IN (SELECT f.followeeId FROM follow f WHERE f.followerId = ?)";
 
         try(Connection conn = dataSource.getConnection();
         PreparedStatement isnotBooked2 = conn.prepareStatement(notbook_nolike)) { //passes sql query
             isnotBooked2.setString(1, logged_in_userId);
             isnotBooked2.setString(2, logged_in_userId);
+            isnotBooked2.setString(3, logged_in_userId);
+
             try(ResultSet rs = isnotBooked2.executeQuery()) {
                 while (rs.next()) {
                     posts.add(helpPost(rs, 0, 0, false, false));
