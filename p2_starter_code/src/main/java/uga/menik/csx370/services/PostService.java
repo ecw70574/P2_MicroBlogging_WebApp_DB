@@ -105,10 +105,8 @@ public class PostService {
         PreparedStatement isBooked1 = conn.prepareStatement(bookmarked_liked_posts)) { //passes sql query
             isBooked1.setString(1, logged_in_userId);
             isBooked1.setString(2, logged_in_userId);
-            isBooked1.setString(3, logged_in_userId);
-            isBooked1.setString(4, logged_in_userId);
-            isBooked1.setString(5, logged_in_userId);
-
+            //isBooked1.setString(3, logged_in_userId);
+            //isBooked1.setString(4, logged_in_userId);
             try(ResultSet rs = isBooked1.executeQuery()) {
                 while (rs.next()) {
                     //set helper method parameters
