@@ -61,7 +61,7 @@ public class PostController {
             @RequestParam(name = "error", required = false) String error) {
         System.out.println("The user is attempting to view post with id: " + postId);
         // See notes on ModelAndView in BookmarksController.java.
-        ModelAndView mv = new ModelAndView("posts_page");
+        ModelAndView mv = new ModelAndView("this_post");
 
         // Following line populates sample data.
         // You should replace it with actual data from the database.
