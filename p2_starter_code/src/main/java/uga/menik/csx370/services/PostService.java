@@ -281,9 +281,20 @@ public class PostService {
 		}
 	    }
 	}
-	
-        final String getPostSql = "select p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
-        "from post p join user u on p.userId = u.userId where p.postId = ?" ;
+        /*
+        final String getPostSql = "select count(pl.userId) as heartsCount, p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
+        "from post p join user u on p.userId = u.userId where p.postId = ?" +
+        "and join post_like pl where pl.postId = p.postId";
+         */
+
+        final String getPostSql = "SELECT COALESCE(COUNT(DISTINCT pl.userId), 0) as heartsCount, p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
+        "FROM post p " + 
+        "JOIN user u on p.userId = u.userId " +
+        "LEFT JOIN post_like pl ON pl.postId = p.postId " + 
+        "WHERE p.postId = ? " +
+        "GROUP BY p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName";
+
+        
 
         try(Connection conn = dataSource.getConnection();
         PreparedStatement postStmt = conn.prepareStatement(getPostSql)) { //passes sql query
@@ -312,7 +323,7 @@ public class PostService {
                         false
                     );
                     posts.add(post);
-                    */
+                    
                     //set helper method parameters
                     isBookmarked = false; //determine if new Post object is bookmarked
                     if (rs.getString("userBookmarkedPost") != null) { //if exists, than true
@@ -322,6 +333,7 @@ public class PostService {
                     if (rs.getString("userHeartedPost") != null) { //if exists, than true
                         isLiked = true;
                     } //if
+                    */
                     int heartsCount = rs.getInt("heartsCount");
                     //once comments is implemented:
                     //int commentsCount = rs.getInt("heartsCount");
