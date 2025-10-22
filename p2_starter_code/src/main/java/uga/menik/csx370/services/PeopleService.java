@@ -61,9 +61,12 @@ public class PeopleService {
                     // since ID is unique
                     while (rs.next()) {
 
-			String last_active_field = rs.getString("lastActiveDate");
-			if (last_active_field == null || last_active_field.trim().isEmpty()) {
-			    last_active_field = "Never";
+			// String last_active_field = rs.getString("lastActiveDate");
+            Timestamp last_active_timestamp = rs.getTimestamp("lastActiveDate");
+            // convert to Eastern time
+            LocalDateTime correctedEastern = last_active_timestamp.toLocalDateTime().minusHours(4);
+			if (correctedEastern == null || correctedEastern.trim().isEmpty()) {
+			    correctedEastern = "Never";
 			}			    
                         // Note: rs.get.. functions access attributes of the current row.
                         // Access rows and their attributes
@@ -73,7 +76,7 @@ public class PeopleService {
                             rs.getString("firstName"),
                             rs.getString("lastName"),
                             true,
-                            last_active_field
+                            correctedEastern
                         ));
                     } //while
                 } //try
