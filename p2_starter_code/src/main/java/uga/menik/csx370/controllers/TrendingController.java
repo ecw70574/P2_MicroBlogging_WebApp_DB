@@ -1,13 +1,26 @@
 package uga.menik.csx370.controllers;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import uga.menik.csx370.models.Post;
+import uga.menik.csx370.models.User;
+import uga.menik.csx370.services.BookmarksService;
 import uga.menik.csx370.services.PostService;
 import uga.menik.csx370.services.UserService;
+import uga.menik.csx370.services.TrendingService;
+
 
 /**
  * Handles /trending URL.
@@ -17,17 +30,16 @@ import uga.menik.csx370.services.UserService;
 public class TrendingController {
 
     // UserService has user login and registration related functions.
-    private final PostService postService;
-    private final UserService userService;
+    private final TrendingService trendingService;
+    //private final UserService userService;
 
     /**
      * See notes in AuthInterceptor.java regarding how this works 
      * through dependency injection and inversion of control.
      */
     @Autowired
-    public TrendingController(UserService userService, PostService postService) {
-        this.userService = userService;
-        this.postService = postService;
+    public TrendingController(TrendingService trendingService) {
+        this.trendingService = trendingService;
     }
 
     /**
@@ -39,10 +51,9 @@ public class TrendingController {
         System.out.println("User is attempting to view the trending page");
         ModelAndView mv = new ModelAndView("posts_page");
 
-        /* 
         try {
             
-            List<Post> trendingPosts = postService.getTrendingPosts();
+            List<Post> trendingPosts = trendingService.getTrendingPosts();
             mv.addObject("posts", trendingPosts);
 
             if(trendingPosts.isEmpty()) {
@@ -54,7 +65,7 @@ public class TrendingController {
             String errorMessage = "Some error occured!";
             mv.addObject("errorMessage", errorMessage);
         }
-*/
+
         return mv;
     }
 }
