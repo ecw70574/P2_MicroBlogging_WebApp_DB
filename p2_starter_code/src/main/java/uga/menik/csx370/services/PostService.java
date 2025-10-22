@@ -255,6 +255,8 @@ public class PostService {
                                                 "FROM post_like AS pl " + 
                                                 "WHERE pl.postID = p.postID)" + //post like for posts
                                             "AS heartsCount " + //use this alias for int heartsCount in helper method
+                                            // once comments in implemented:
+                                            // (SELECT COUNT(*) FROM comments AS c WHERE c.postID = p.postID) AS commentsCount
                                   "FROM post AS p, user AS u " + //join post and user on userID
                                   "WHERE p.userID = u.userID " + 
                                     "AND p.userID = ? " + //of the specified userID user
@@ -278,6 +280,8 @@ public class PostService {
                         isHearted = true;
                     } //if
                     int heartsCount = rs.getInt("heartsCount");
+                    //once comments is implemented:
+                    //int commentsCount = rs.getInt("heartsCount");
                     posts.add(helpPost(rs, heartsCount, 0, isHearted, isBookmarked)); //call helper method
                 }
             }
