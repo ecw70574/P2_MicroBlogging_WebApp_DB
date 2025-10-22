@@ -14,8 +14,10 @@ import javax.sql.DataSource;
 
 import org.springframework.stereotype.Service;
 
+import uga.menik.csx370.models.Comment;
 import uga.menik.csx370.models.Post;
 import uga.menik.csx370.models.User;
+
 
 /**
  * This service contains people related functions.
@@ -333,4 +335,50 @@ public class PostService {
             );
         return post;
     }
+
+
+    public boolean createComment(String userId, String postId, String content) throws SQLException {
+        String commentSql = "insert into comment (userId, postId, content, commentDate) values (?, ?, ?, NOW())";
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(commentSql)) {
+            stmt.setString(1, userId);
+            stmt.setString(2, postId);
+            stmt.setString(3, content);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+    public List<Comment> getCommentsByPostId(String postId) throws SQLException {
+        List<Comment> comments = new ArrayList<>();
+        final String commentSql = "Select c.commentId, c.content, c.commentDate, u.firstName, u.lastName" +
+            "From comment c Join user u ON c.userId = u.userId Where c.postId = ? order by c.commentDate desc";
+
+        try(Connection conn = dataSource.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(commentSql)) {
+
+            stmt.setString(1, postId);
+            try(ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                User user = new User(
+                rs.getString("userId"),
+                rs.getString("firstName"),
+                rs.getString("lastName")
+
+                );
+                Comment comment = new Comment(
+                rs.getString("commentId"),
+                rs.getString("content"),
+                rs.getTimestamp("commentDate").toString(),
+                user
+                );
+                comments.add(comment);
+                }
+            }
+        }
+        return comments;
+    }
+        
+
+
 }

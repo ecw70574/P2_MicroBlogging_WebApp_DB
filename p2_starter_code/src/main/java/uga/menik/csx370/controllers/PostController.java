@@ -8,7 +8,6 @@ package uga.menik.csx370.controllers;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,11 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import uga.menik.csx370.models.Post;
 import uga.menik.csx370.models.User;
+import uga.menik.csx370.models.ExpandedPost;
+import uga.menik.csx370.models.Comment;
+
 import uga.menik.csx370.services.BookmarksService;
 import uga.menik.csx370.services.PostService;
 import uga.menik.csx370.services.UserService;
+
 
 
 /**
@@ -63,10 +65,29 @@ public class PostController {
         // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("posts_page");
 
-        // Following line populates sample data.
-        // You should replace it with actual data from the database.
-	//        List<ExpandedPost> posts = Utility.createSampleExpandedPostWithComments();
 	try {
+        List<Post> posts = postService.getPostById(postId);
+        if (posts.isEmpty()) {
+            mv.addObject("isNoContent", true);
+        } else {
+            mv.addObject("posts",posts);
+
+            List<Comment> comments = postService.getCommentsByPostId(postId);
+            mv.addObject("comments",comments);
+        }
+
+    } catch (SQLException e) {
+        String errorMessage = "Some error occured";
+	    mv.addObject("errorMessage", errorMessage);
+    }
+
+    if (error != null) {
+        mv.addObject("errorMessage", error);
+    }
+
+    
+    /* 
+    try {
 	    
 	    List<Post> posts = postService.getPostById(postId); // passsing in the postId from the webpage so that only one post is displayed
         
@@ -89,7 +110,7 @@ public class PostController {
         // Enable the following line if you want to show no content message.
         // Do that if your content list is empty.
         // mv.addObject("isNoContent", true);
-
+*/
         return mv;
     }
 
