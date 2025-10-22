@@ -188,7 +188,7 @@ public class BookmarksService {
                     boolean isLiked = rs.getBoolean("isLiked");
 
                     User postAuthor = new User(
-                        rs.getString("authorId"), 
+                        rs.getString("userId"), 
                         rs.getString("authorFN"), 
                         rs.getString("authorLN")
                         );
