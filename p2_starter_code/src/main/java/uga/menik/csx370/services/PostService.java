@@ -19,6 +19,13 @@ import uga.menik.csx370.models.Post;
 import uga.menik.csx370.models.ExpandedPost;
 import uga.menik.csx370.models.User;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;       
+import java.time.format.DateTimeFormatter;
+
+
 /**
  * This service contains people related functions.
  */
@@ -319,15 +326,21 @@ public class PostService {
                         rs.getString("firstName"),
                         rs.getString("lastName")
                         );
-
+		    /*
                     Timestamp currentUTC = rs.getTimestamp("postDate"); //get timestamp in utc
                     //convert to Eastern time: -4 hours
                     LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
-                    
+                    */
+		    Timestamp currentUTC = rs.getTimestamp("postDate"); // UTC from DB
+		    ZonedDateTime utcZoned = currentUTC.toInstant().atZone(ZoneId.of("UTC"));
+		    ZonedDateTime easternZoned = utcZoned.withZoneSameInstant(ZoneId.of("America/New_York"));
+		    String formattedDate = easternZoned.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a"));
+
                     Post post = new ExpandedPost(
                         rs.getString("postId"),
                         rs.getString("content"),
-                        correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
+			//                        correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
+			formattedDate,
                         user,
                         rs.getInt("heartsCount"),
                         rs.getInt("commentCount"),
@@ -523,20 +536,28 @@ public class PostService {
 
             stmt.setString(1, postId);
             try(ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                User user = new User(
-                rs.getString("userId"),
-                rs.getString("firstName"),
-                rs.getString("lastName")
 
-                );
-                Comment comment = new Comment(
-                rs.getString("commentId"),
-                rs.getString("content"),
-                rs.getTimestamp("commentDate").toString(),
-                user
-                );
-                comments.add(comment);
+
+                while (rs.next()) {
+
+		    Timestamp commentTimestamp = rs.getTimestamp("commentDate");
+		    ZonedDateTime easternTime = commentTimestamp.toInstant().atZone(ZoneId.of("America/New_York"));
+		    String formattedCommentDate = easternTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a"));
+
+		    User user = new User(
+					 rs.getString("userId"),
+					 rs.getString("firstName"),
+					 rs.getString("lastName")
+
+					 );
+		    Comment comment = new Comment(
+						  rs.getString("commentId"),
+						  rs.getString("content"),
+						  // rs.getTimestamp("commentDate").toString(),
+						  formattedCommentDate,
+						  user
+						  );
+		    comments.add(comment);
                 }
             }
         }
