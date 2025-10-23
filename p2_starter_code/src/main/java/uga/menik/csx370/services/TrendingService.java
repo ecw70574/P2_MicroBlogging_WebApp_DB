@@ -52,21 +52,27 @@ public class TrendingService {
             bookmarkCounts As(
                 Select postId, Count(*) as bookmarkCount
                 from bookmark
-                group by postId)
+                group by postId),
+	    commentCounts As(
+		Select postId, Count(*) as commentCount
+		from comment
+		group by postId)
             Select p.postId, p.content, p.userId, p.postDate,
                 u.userId, u.firstName, u.lastName,
                 (Select ub.postId from userBookmarked ub where ub.postId = p.postId) as userBookmarkedPost,
                 (Select uh.postId from userHearted uh where uh.postId = p.postId) as userHeartedPost,
                 ifnull(lc.likeCount, 0) as heartsCount,
+	        ifnull(cc.commentCount,0) as commentCount,
                 ifnull(bc.bookmarkCount, 0) as bookmarkCount,
-                ifnull(heartsCount, 0) + ifnull(bookmarkCount, 0) as totalScore
+	    ifnull(likeCount, 0) + ifnull(commentCount, 0) + ifnull(bookmarkCount, 0) as totalScore
             from post p
             join user u on p.userId = u.userId
             left join likeCounts lc on p.postId = lc.postId
+	    left join commentCounts cc on p.postId = cc.postId
             left join bookmarkCounts bc on p.postId = bc.postId
             order by totalScore desc
             limit 10;
-                """;
+             """;
         
         try(Connection conn = dataSource.getConnection();
             PreparedStatement stmt = conn.prepareStatement(trendingSql)) { //passes sql query
@@ -88,7 +94,8 @@ public class TrendingService {
                             isHearted = true;
                         } //if
                         int heartsCount = rs.getInt("heartsCount");
-                        posts.add(postService.helpPost(rs, heartsCount, 0, isHearted, isBookmarked)); // isHearted = true, isBookmarked = true
+			int commentCount = rs.getInt("commentCount");
+                        posts.add(postService.helpPost(rs, heartsCount, commentCount, isHearted, isBookmarked)); // isHearted = true, isBookmarked = true
                     }
                 }
             }
