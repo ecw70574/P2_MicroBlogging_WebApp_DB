@@ -147,11 +147,13 @@ public class BookmarksService {
 
         final String getBookMarkedSql = 
         "select count(distinct pl.userId) as heartsCount, p.postId, b.authorId as userId, p.content, p.postDate, u.firstName, u.lastName, " +
+	"count(distinct c.commentId) as commentCount, " + 
         "exists (select 1 from post_like pl2 where pl2.postId = p.postId and pl2.userId = ?) as isLiked " +
         "from bookmark b " +
         "join post p on p.postId = b.postId " +  
         "join user u on u.userId = b.authorId " +
         "left join post_like pl on pl.postId = p.postId " +
+	"left join comment c on c.postId = p.postId " +
         "where b.userId = ? " +
         "group by p.postId, b.authorId, p.postDate, u.firstName, u.lastName";
         
@@ -183,6 +185,7 @@ public class BookmarksService {
                 while (rs.next()) {
                     // get the like count
                     int heartsCount = rs.getInt("heartsCount");
+		    int commentCount = rs.getInt("commentCount");
 
                     // get the liked by user
                     boolean isLiked = rs.getBoolean("isLiked");
@@ -197,7 +200,7 @@ public class BookmarksService {
                     //convert to Eastern time: -4 hours
                     LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
                 
-                    posts.add(postService.helpPost(rs, heartsCount, 0, isLiked, true));
+                    posts.add(postService.helpPost(rs, heartsCount, commentCount, isLiked, true));
 
                 } 
             } // try

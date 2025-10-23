@@ -86,8 +86,12 @@ public class PostService {
                                                     "(SELECT COUNT(*) " + //get count of hearts for posts
                                                         "FROM post_like AS pl " + 
                                                         "WHERE pl.postId = p.postId) " + //post like for posts
-                                                            "AS heartsCount " + //use this alias for int heartsCount in helper method
-                                                    // once comments in implemented:
+                                                            "AS heartsCount, " + //use this alias for int heartsCount in helper method
+	                                            "(SELECT COUNT(*) " +
+	                                                "FROM comment as c " +
+	                                                "WHERE c.postId = p.postId) " +
+	                                                    "AS commentCount " +
+	                                            // once comments in implemented:
                                                     // (SELECT COUNT(*) FROM comments AS c WHERE c.postID = p.postID) AS commentsCount
                                                     "FROM post p " +
                                                     "JOIN user u ON p.userId = u.userId " +
@@ -122,9 +126,10 @@ public class PostService {
                         isHearted = true;
                     } //if
                     int heartsCount = rs.getInt("heartsCount");
+		    int commentCount = rs.getInt("commentCount");
                     //once comments is implemented:
                     //int commentsCount = rs.getInt("heartsCount");
-                    posts.add(helpPost(rs, heartsCount, 0, isHearted, isBookmarked)); // isHearted = true, isBookmarked = true
+                    posts.add(helpPost(rs, heartsCount, commentCount, isHearted, isBookmarked)); // isHearted = true, isBookmarked = true
                 }
             }
         }
@@ -292,10 +297,12 @@ public class PostService {
         "and join post_like pl where pl.postId = p.postId";
          */
 
-        final String getPostSql = "SELECT COUNT(DISTINCT pl.userId) as heartsCount, p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
+        final String getPostSql = "SELECT COUNT(DISTINCT pl.userId) as heartsCount, p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName, " +
+	"COUNT(DISTINCT c.commentId) as commentCount " +
         "FROM post p " + 
         "JOIN user u on p.userId = u.userId " +
-        "LEFT JOIN post_like pl ON pl.postId = p.postId " + 
+        "LEFT JOIN post_like pl ON pl.postId = p.postId " +
+	"LEFT JOIN comment c ON c.postId = p.postId " +
         "WHERE p.postId = ? " +
         "GROUP BY p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName";
 
@@ -323,7 +330,7 @@ public class PostService {
                         correctedEasterndateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")), // format String
                         user,
                         rs.getInt("heartsCount"),
-                        0,
+                        rs.getInt("commentCount"),
                         isLiked,
                         isBookmarked,
                         comments_on_post
@@ -386,7 +393,12 @@ public class PostService {
                                             "(SELECT COUNT(*) " + //get count of hearts for posts
                                                 "FROM post_like AS pl " + 
                                                 "WHERE pl.postID = p.postID)" + //post like for posts
-                                            "AS heartsCount " + //use this alias for int heartsCount in helper method
+                                            "AS heartsCount, " + //use this alias for int heartsCount in helper method
+                                            "(SELECT COUNT(*) " +
+	                                        "FROM comment as c " +
+                                                "WHERE c.postId = p.postId) " +
+                                            "AS commentCount " +
+
                                             // once comments in implemented:
                                             // (SELECT COUNT(*) FROM comments AS c WHERE c.postID = p.postID) AS commentsCount
                                   "FROM post AS p, user AS u " + //join post and user on userID
@@ -412,9 +424,10 @@ public class PostService {
                         isHearted = true;
                     } //if
                     int heartsCount = rs.getInt("heartsCount");
+		    int commentCount = rs.getInt("commentCount");
                     //once comments is implemented:
                     //int commentsCount = rs.getInt("heartsCount");
-                    posts.add(helpPost(rs, heartsCount, 0, isHearted, isBookmarked)); //call helper method
+                    posts.add(helpPost(rs, heartsCount, commentCount, isHearted, isBookmarked)); //call helper method
                 }
             }
         }
