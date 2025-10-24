@@ -7,8 +7,6 @@
 -- Create the user table.
 -- alter table user ADD lastActiveDate VARCHAR(50);
 -- ALTER TABLE user DROP COLUMN IF EXISTS lastActiveDate;
-
---user table
 create table if not exists user (
     userId int auto_increment primary key,
     username varchar(255) not null unique,
@@ -22,7 +20,6 @@ create table if not exists user (
     -- constraint lastName_min_length check (char_length(trim(lastName)) >= 2)
 );
 
---follow table
 create table if not exists follow (
     followerId int not null,
     followeeId int not null,
@@ -31,7 +28,6 @@ create table if not exists follow (
     foreign key (followeeId) references user(userId) on delete cascade
 );
 
---post table
 CREATE TABLE if not exists post(
     postId INT AUTO_INCREMENT PRIMARY KEY,
     content VARCHAR(500),
@@ -55,7 +51,6 @@ CREATE TABLE if not exists bookmark(
     foreign key (authorId) references user(userId) on delete cascade
 );
 
---post_like table
 CREATE TABLE IF NOT EXISTS post_like (
     userId INT NOT NULL,
     postId INT NOT NULL,

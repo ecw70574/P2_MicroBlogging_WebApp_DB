@@ -7,8 +7,6 @@
 -- Create the user table.
 -- alter table user ADD lastActiveDate VARCHAR(50);
 -- ALTER TABLE user DROP COLUMN IF EXISTS lastActiveDate;
-
---user table
 create table if not exists user (
     userId int auto_increment primary key,
     username varchar(255) not null unique,
