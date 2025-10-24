@@ -46,31 +46,19 @@ public class HashtagSearchController {
         // Following line populates sample data.
         // You should replace it with actual data from the database.
         try {
-            
             List<Post> posts = hashtagService.searchPostHashtags(hashtags);
-
-            if (posts.isEmpty()) {
+            if (posts.isEmpty()) { // Show no content message.
                 mv.addObject("isNoContent", true);
             } else {
                 mv.addObject("posts", posts);
-            }
-            
+            } //if
         } catch (SQLException e) {
+            //// If an error occured, you can set the following property with the
+            // error message to show the error message to the user.
             String errorMessage = "Some error occured!";
             mv.addObject("errorMessage", errorMessage);
             e.printStackTrace();
-        }
-        
-
-        // If an error occured, you can set the following property with the
-        // error message to show the error message to the user.
-        // String errorMessage = "Some error occured!";
-        // mv.addObject("errorMessage", errorMessage);
-
-        // Enable the following line if you want to show no content message.
-        // Do that if your content list is empty.
-        // mv.addObject("isNoContent", true);
-        
+        } //try-catch
         return mv;
     }
     

@@ -38,7 +38,7 @@ public class ProfileController {
     public ProfileController(UserService userService, PostService postService) {
         this.userService = userService;
         this.postService = postService;
-    }
+    } //ProfileController
 
     /**
      * This function handles /profile URL itself.
@@ -48,7 +48,7 @@ public class ProfileController {
     public ModelAndView profileOfLoggedInUser() {
         System.out.println("User is attempting to view profile of the logged in user.");
         return profileOfSpecificUser(userService.getLoggedInUser().getUserId());
-    }
+    } //ModelAndView
 
     /**
      * This function handles /profile/{userId} URL.
@@ -66,18 +66,16 @@ public class ProfileController {
         try {
             List<Post> posts = postService.getUserPosts(userId);
             mv.addObject("posts",posts);
-
             if (posts.isEmpty()) {
             // Enable the following line if you want to show no content message.
                 mv.addObject("isNoContent",true);
-            }
+            } //if
         } catch (SQLException e) {
-        
             //if error occured
             String errorMessage = "Some error occured!";
             mv.addObject("errorMessage", errorMessage);
-        }
+        } //try-catcj
         return mv;
-    }
+    } //profileOfSpecificUser
     
 }

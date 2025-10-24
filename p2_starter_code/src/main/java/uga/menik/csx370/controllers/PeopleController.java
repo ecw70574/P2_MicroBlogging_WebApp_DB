@@ -40,18 +40,16 @@ public class PeopleController {
     public ModelAndView webpage(@RequestParam(name = "error", required = false) String error) {
         ModelAndView mv = new ModelAndView("people_page");
 
-        
         List<FollowableUser> followableUsers = peopleService.getFollowableUsers(
             userService.getLoggedInUser().getUserId()
         );
         mv.addObject("users", followableUsers);
 
-       
         String errorMessage = error;
         mv.addObject("errorMessage", errorMessage);
         
         return mv;
-    }
+    } //webpage
 
   
     @GetMapping("{userId}/follow/{isFollow}")
@@ -71,6 +69,6 @@ public class PeopleController {
                 StandardCharsets.UTF_8);
             return "redirect:/people?error=" + message;
         }
-    }
+    } //followUnfollowUser
 
 }

@@ -8,22 +8,19 @@ package uga.menik.csx370.controllers;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import uga.menik.csx370.models.FollowableUser;
 import uga.menik.csx370.models.Post;
 import uga.menik.csx370.models.User;
 import uga.menik.csx370.services.BookmarksService;
-import uga.menik.csx370.services.HashtagService;
 import uga.menik.csx370.services.PeopleService;
 import uga.menik.csx370.services.UserService;
-import uga.menik.csx370.utility.Utility;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -66,28 +63,17 @@ public class BookmarksController {
         // Adding the bookmarked Posts to the page 
         try {
             List<Post> posts = bookmarksService.getBookMarked(loggedInUser);
-            if (posts.isEmpty()) {
+            if (posts.isEmpty()) { //show no content message
                 mv.addObject("isNoContent", true);
             } else {
                 mv.addObject("posts", posts); // object not empy 
             }
         } catch (SQLException e) {
-	    logger.error("Database error occurred", e);
-	    mv.addObject("errorMessage", "A database error occurred. Please try again later.");
-	    //            String errorMessage = "Some error occurred!";
-	    //            mv.addObject("errorMessage", errorMessage);
-        }
-        
-
-        // If an error occured, you can set the following property with the
-        // error message to show the error message to the user.
-        // String errorMessage = "Some error occured!";
-        // mv.addObject("errorMessage", errorMessage);
-
-        // Enable the following line if you want to show no content message.
-        // Do that if your content list is empty.
-        // mv.addObject("isNoContent", true);
-
+            // If an error occured, you can set the following property with the
+            // error message to show the error message to the user.
+	        logger.error("Database error occurred", e);
+	        mv.addObject("errorMessage", "A database error occurred. Please try again later.");
+        } //try-catch
         return mv;
     }
     

@@ -77,7 +77,7 @@ public class LoginController {
             String message = URLEncoder.encode("Authentication failed. Please try again.",
                     StandardCharsets.UTF_8);
             return "redirect:/login?error=" + message;
-        }
+        } //try-catch
 
         if (isAuthenticated) {
             // Redirect to home page if authentication is successful.
@@ -88,7 +88,7 @@ public class LoginController {
             String message = URLEncoder.encode("Invalid username or password. Please try again.",
                     StandardCharsets.UTF_8);
             return "redirect:/login?error=" + message;
-        }
+        } //if-else
     }
 
 }

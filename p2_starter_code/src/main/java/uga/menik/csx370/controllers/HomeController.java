@@ -87,15 +87,11 @@ public class HomeController {
     public String createPost(@RequestParam(name = "posttext") String postText) {
         User user = userService.getLoggedInUser();
 
-
         System.out.println(user.getUserId() + " is creating post: " + postText);
-
-
 
         // Redirect the user if the post creation is a success.
         // return "redirect:/";
         try {
-
             postService.createPost(user, postText);
             return "redirect:/";
         } catch (SQLException e) {
@@ -103,9 +99,7 @@ public class HomeController {
             String message = URLEncoder.encode("Failed to create the post. Please try again.",
                 StandardCharsets.UTF_8);
             return "redirect:/?error=" + message;
-        }
-
-        
+        } //try-catch        
     }
 
 }

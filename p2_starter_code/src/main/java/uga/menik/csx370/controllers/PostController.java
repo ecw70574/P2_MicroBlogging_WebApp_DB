@@ -65,33 +65,21 @@ public class PostController {
 
         // Following line populates sample data.
         // You should replace it with actual data from the database.
-	//        List<ExpandedPost> posts = Utility.createSampleExpandedPostWithComments();
-	try {
-	    
-	    List<Post> posts = postService.getPostById(postId); // passsing in the postId from the webpage so that only one post is displayed
-        
-
-	    if (posts.isEmpty()) {
-		mv.addObject("isNoContent",true);
-	    } else {
-	 	mv.addObject("posts", posts);
-	    }
-	} catch (SQLException e){
-	    String errorMessage = "Some error occured";
-	    e.printStackTrace();
-	    mv.addObject("errorMessage", errorMessage);
-	} // try catch
-
-        // If an error occured, you can set the following property with the
-        // error message to show the error message to the user.
-        // An error message can be optionally specified with a url query parameter too.
-
-        // Enable the following line if you want to show no content message.
-        // Do that if your content list is empty.
-        // mv.addObject("isNoContent", true);
-
+        //List<ExpandedPost> posts = Utility.createSampleExpandedPostWithComments();
+        try {  
+            List<Post> posts = postService.getPostById(postId); // passsing in the postId from the webpage so that only one post is displayed
+            if (posts.isEmpty()) { // Show no content message
+            mv.addObject("isNoContent",true);
+            } else {
+            mv.addObject("posts", posts);
+            }
+        } catch (SQLException e){ // If an error occured
+            String errorMessage = "Some error occured";
+            e.printStackTrace();
+            mv.addObject("errorMessage", errorMessage);
+        } // try catch
         return mv;
-    }
+    } //webpage
 
     /**
      * Handles comments added on posts.
@@ -106,28 +94,23 @@ public class PostController {
         System.out.println("\tpostId: " + postId);
         System.out.println("\tcomment: " + comment);
  
-	try{
-	    User currentUser = userService.getLoggedInUser();
-	    String loggedInUserId = currentUser.getUserId();
+        try{
+            User currentUser = userService.getLoggedInUser();
+            String loggedInUserId = currentUser.getUserId();
 
-	    boolean actionCompleted = postService.createComment(loggedInUserId, postId,comment);
+            boolean actionCompleted = postService.createComment(loggedInUserId, postId,comment);
 
-	    if (actionCompleted){
-		    return "redirect:/post/" + postId;
-	    }
-	} catch (SQLException e){
-	    e.printStackTrace();
-	}
-	
-
-        // Redirect the user if the comment adding is a success.
-        // return "redirect:/post/" + postId;
-
+            if (actionCompleted){ // Redirect the user if the comment adding is a success.
+                return "redirect:/post/" + postId; // return "redirect:/post/" + postId;
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
         // Redirect the user with an error message if there was an error.
         String message = URLEncoder.encode("Failed to post the comment. Please try again.",
                 StandardCharsets.UTF_8);
         return "redirect:/post/" + postId + "?error=" + message;
-    }
+    } //postComment
 
     /**
      * Handles likes added on posts.
@@ -147,15 +130,15 @@ public class PostController {
             done = postService.addLike(loggedUser, postId);
         } else {
             done = postService.removeLike(loggedUser, postId);
-        }
+        } //if-else
 
         if (done) {
             return "redirect:/post/" + postId;
-        }
+        } //if
 
         String err = URLEncoder.encode("couldn't update like, try again.", StandardCharsets.UTF_8);
         return "redirect:/post/" + postId + "?error=" + err;
-    }
+    } //handleHeartAction
 
 
 
@@ -191,43 +174,34 @@ public class PostController {
     @GetMapping("/{postId}/bookmark/{isAdd}")
     public String addOrRemoveBookmark(@PathVariable("postId") String postId,
             @PathVariable("isAdd") Boolean isAdd) {
-	String action = "";
-	if (isAdd) {
-	    action = "add";
-	} else {
-	    action = "remove";
-	}
-	System.out.println("The user is attempting to " + action + " a bookmark:");
-        System.out.println("\tpostId: " + postId);
-        System.out.println("\tisAdd: " + isAdd);
+        String action = "";
+        if (isAdd) {
+            action = "add";
+        } else {
+            action = "remove";
+        } //if-else
+        System.out.println("The user is attempting to " + action + " a bookmark:");
+            System.out.println("\tpostId: " + postId);
+            System.out.println("\tisAdd: " + isAdd);
 
-	boolean actionCompleted = false;
-
-	
-	// add or remove bookmark depending on boolean. do we need to inject a bookmark svc?
-
-	try{
-	    User currentUser = userService.getLoggedInUser();
-	    if (isAdd) {
-		actionCompleted = bookmarkService.addBookmark(currentUser, postId);
-	    } else {
-		actionCompleted = bookmarkService.removeBookmark(currentUser, postId);
-	    }
-	    if (actionCompleted){
-		    return "redirect:/post/" + postId;
-	    }
-	} catch (SQLException e){
-	    e.printStackTrace();
-	}
-	
-
-        // Redirect the user if the comment adding is a success.
-        // return "redirect:/post/" + postId;
-
+        boolean actionCompleted = false;
+        // add or remove bookmark depending on boolean. do we need to inject a bookmark svc?
+        try{
+            User currentUser = userService.getLoggedInUser();
+            if (isAdd) {
+            actionCompleted = bookmarkService.addBookmark(currentUser, postId);
+            } else {
+            actionCompleted = bookmarkService.removeBookmark(currentUser, postId);
+            } //if-else
+            if (actionCompleted){ // Redirect the user if the comment adding is a success.
+                return "redirect:/post/" + postId; // return "redirect:/post/" + postId;
+            } //if
+        } catch (SQLException e){
+            e.printStackTrace();
+        } //try-catch
         // Redirect the user with an error message if there was an error.
         String message = URLEncoder.encode("Failed to (un)bookmark the post. Please try again.",
                 StandardCharsets.UTF_8);
         return "redirect:/post/" + postId + "?error=" + message;
-    }
-
+    } //addOrRemoveBookmark
 }
