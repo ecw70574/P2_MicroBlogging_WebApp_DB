@@ -45,7 +45,7 @@ public class UserService {
     public UserService(DataSource dataSource) {
         this.dataSource = dataSource;
         this.passwordEncoder = new BCryptPasswordEncoder();
-    }
+    } //UserService
 
     /**
      * Authenticate user given the username and the password and
@@ -77,13 +77,13 @@ public class UserService {
 
                         // Initialize and retain the logged in user.
                         loggedInUser = new User(userId, firstName, lastName);
-                    }
+                    } //if
                     return isPassMatch;
-                }
-            }
-        }
+                } //while
+            } //try
+        } //try
         return false;
-    }
+    } //authenticate
 
     /**
      * Logs out the user.
@@ -128,7 +128,7 @@ public class UserService {
             // Execute the statement and check if rows are affected.
             int rowsAffected = registerStmt.executeUpdate();
             return rowsAffected > 0;
-        }
-    }
+        } //try
+    } //registerUser
 
 }

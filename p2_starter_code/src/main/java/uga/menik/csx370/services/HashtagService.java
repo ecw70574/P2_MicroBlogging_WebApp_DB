@@ -30,7 +30,7 @@ public class HashtagService {
         this.dataSource = dataSource;
         this.userService = userService;
         this.postService = postService;
-    }
+    } //HashtagService
 
     /*
      * This function should search and return any posts with the hastags. 
@@ -50,8 +50,8 @@ public class HashtagService {
             if (search[i].startsWith("#")) { //get items that start w/ hashtags
                 System.out.print(search[i] + ", ");
                 searchedHashtags.add(search[i]); //add to list
-            } 
-        }
+            } //if
+        } //for
 
         String getPostSql = "WITH userBookmarked AS ( SELECT postId	" +	//logged in user bookmarks
                                                      "FROM bookmark " +  
@@ -89,24 +89,22 @@ public class HashtagService {
                     getPostSql += " and "; // add between
                 }
                 getPostSql += "p.content REGEXP ?"; // content contains the hashtag
-            }
-        }
+            } //for
+        } //if
         
-
-        // still need to implement that the most recent posts are displayed first 
+        // most recent posts are displayed first 
         getPostSql += ") ORDER BY p.postDate DESC";
         
         try(Connection conn = dataSource.getConnection();
             PreparedStatement hashtStmt = conn.prepareStatement(getPostSql)){ //passes sql query
                 hashtStmt.setString(1, logged_in_userId);
                 hashtStmt.setString(2, logged_in_userId);
-        // binding the like statements to the hashtags
-        // (^|\s): means start (^) can be a space or (|) the searchedHashtag
-        // ($|\s): means end ($) can be a space or (|) just the end
+            // binding the like statements to the hashtags
+            // (^|\s): means start (^) can be a space or (|) the searchedHashtag
+            // ($|\s): means end ($) can be a space or (|) just the end
             for (int i = 0; i < searchedHashtags.size(); i++) {
                 hashtStmt.setString(i + 3, "(^|\s)" + searchedHashtags.get(i) + "($|\s)");
-            }
-
+            } //for
             try (ResultSet rs = hashtStmt.executeQuery()) {
                 while (rs.next()) {
                     //set helper method parameters
@@ -121,15 +119,14 @@ public class HashtagService {
                     int heartsCount = rs.getInt("heartsCount");
 		            int commentCount = rs.getInt("commentCount");
                     posts.add(postService.helpPost(rs, heartsCount, commentCount, isHearted, isBookmarked));
-                }
+                } //while
             } catch(SQLException e) {
                 System.out.println(e);
-            }
+            } //try-catch
         } catch(SQLException e) {
             System.err.println("Error in HashtagService, searchPostHashtags: " + e);
-        }
+        } //try-catch
         return posts;
-
     } // searchPostHashtags
 
 }

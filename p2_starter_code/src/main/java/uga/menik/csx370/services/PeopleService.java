@@ -9,13 +9,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter; 
 import java.util.ArrayList;
 import java.util.List;
-import java.time.format.DateTimeFormatter;
-import java.time.LocalDateTime;
-import java.sql.Timestamp;
-import java.time.ZonedDateTime;
-import java.time.ZoneId; 
+
 import javax.sql.DataSource;
 
 import org.springframework.stereotype.Service;
@@ -45,19 +46,17 @@ public class PeopleService {
 
         // get the users that we do follow - sql query 
         final String doesfollowSql = "SELECT u.userId, u.firstName, u.lastName, " +
-	"(SELECT MAX(STR_TO_DATE(p.postDate, '%Y-%m-%d %H:%i:%s')) " +
-	"FROM post p WHERE p.userId = u.userId) AS lastActiveDate " +
-        "FROM user u join follow f " +
-        "on u.userId = f.followeeId " + 
-        "WHERE f.followeeId <> ? and f.followerId = ?"; // the logged in user is always the follower and never the followee
-        
+        "(SELECT MAX(STR_TO_DATE(p.postDate, '%Y-%m-%d %H:%i:%s')) " +
+        "FROM post p WHERE p.userId = u.userId) AS lastActiveDate " +
+            "FROM user u join follow f " +
+            "on u.userId = f.followeeId " + 
+            "WHERE f.followeeId <> ? and f.followerId = ?"; // the logged in user is always the follower and never the followee
         
         // how to create a list of FollowableUsers
         // Run the query with a datasource.        
         // Inject DataSource instance and use it to run a query.
         try (Connection conn = dataSource.getConnection();
             PreparedStatement followableStmt = conn.prepareStatement(doesfollowSql)) { //passes sql queary
-
                 followableStmt.setString(1, userIdToExclude);
                 followableStmt.setString(2, userIdToExclude);
                 try (ResultSet rs = followableStmt.executeQuery()) {
@@ -65,7 +64,6 @@ public class PeopleService {
                     // Note: This specific while loop will only run at most once 
                     // since ID is unique
                     while (rs.next()) {
-
                         // String last_active_field = rs.getString("lastActiveDate");
                         Timestamp last_active_timestamp = rs.getTimestamp("lastActiveDate");
                         String formattedLastActive;
@@ -74,13 +72,13 @@ public class PeopleService {
                             formattedLastActive = "Never"; // user never made a post
                         } else {
                             // convert to Eastern time
-			    LocalDateTime utcTime = last_active_timestamp.toLocalDateTime();
-			    ZonedDateTime easternTime = utcTime.atZone(ZoneId.of("UTC"))
-				.withZoneSameInstant(ZoneId.of("America/New_York"));
-			    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
-
+			                LocalDateTime utcTime = last_active_timestamp.toLocalDateTime();
+			                ZonedDateTime easternTime = utcTime.atZone(ZoneId.of("UTC"))
+				                .withZoneSameInstant(ZoneId.of("America/New_York"));
+			                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
                             formattedLastActive = easternTime.format(formatter);
-                        }			    
+                        } //if-else	
+                        	    
                         // Note: rs.get.. functions access attributes of the current row.
                         // Access rows and their attributes
                         // from the query result.
@@ -99,16 +97,15 @@ public class PeopleService {
 
         // users that we dont follow
         final String doesNotfollowSql = "SELECT u.userId, u.firstName, u.lastName, " +
-	"(SELECT MAX(STR_TO_DATE(p.postDate, '%Y-%m-%d %H:%i:%s')) " +
-        "FROM post p WHERE p.userId = u.userId) AS lastActiveDate " + 
-        "FROM user u " +
-        "WHERE u.userId NOT IN ( " +
-        "SELECT f.followeeId FROM follow f WHERE f.followerId = ?) " +
-        "and u.userId <> ? "; // the logged in user is always the follower and never the followee
+        "(SELECT MAX(STR_TO_DATE(p.postDate, '%Y-%m-%d %H:%i:%s')) " +
+            "FROM post p WHERE p.userId = u.userId) AS lastActiveDate " + 
+            "FROM user u " +
+            "WHERE u.userId NOT IN ( " +
+            "SELECT f.followeeId FROM follow f WHERE f.followerId = ?) " +
+            "and u.userId <> ? "; // the logged in user is always the follower and never the followee
 
         try (Connection conn = dataSource.getConnection();
         PreparedStatement notFollowableStmt = conn.prepareStatement(doesNotfollowSql)) { //passes sql queary
-
             notFollowableStmt.setString(1, userIdToExclude);
             notFollowableStmt.setString(2, userIdToExclude);
             try (ResultSet rs = notFollowableStmt.executeQuery()) {
@@ -119,21 +116,18 @@ public class PeopleService {
                     // Note: rs.get.. functions access attributes of the current row.
                     // Access rows and their attributes
                     // from the query result.
-                        Timestamp last_active_timestamp = rs.getTimestamp("lastActiveDate");
-                        String formattedLastActive;
-
-                        if (last_active_timestamp == null ) {
-                            formattedLastActive = "Never"; // user never made a post                                
-                        } else {
-                            // convert to Eastern time                                                              
-                            LocalDateTime utcTime = last_active_timestamp.toLocalDateTime();
-                            ZonedDateTime easternTime = utcTime.atZone(ZoneId.of("UTC"))
-                                .withZoneSameInstant(ZoneId.of("America/New_York"));
-                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
-
-                            formattedLastActive = easternTime.format(formatter);
-                        }
-			
+                    Timestamp last_active_timestamp = rs.getTimestamp("lastActiveDate");
+                    String formattedLastActive;
+                    if (last_active_timestamp == null ) {
+                        formattedLastActive = "Never"; // user never made a post                                
+                    } else {
+                        // convert to Eastern time                                                              
+                        LocalDateTime utcTime = last_active_timestamp.toLocalDateTime();
+                        ZonedDateTime easternTime = utcTime.atZone(ZoneId.of("UTC"))
+                            .withZoneSameInstant(ZoneId.of("America/New_York"));
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
+                        formattedLastActive = easternTime.format(formatter);
+                    } //if-else
                     followableUsers.add(new FollowableUser (
                         rs.getString("userId"),
                         rs.getString("firstName"),
@@ -145,7 +139,7 @@ public class PeopleService {
             } //try
         } catch (SQLException e) {
             System.out.println(e);
-        }
+        } //try-catch
         // return the list you created.
         return followableUsers; 
     } //getFollowableUsers
@@ -162,12 +156,11 @@ public class PeopleService {
 
             int rows = pstmt.executeUpdate();
             return rows > 0;
-
         } catch (SQLException e) {
             System.out.println(e);
             return false;
-        }
-    }
+        } //try-catch
+    } //followUser
 
     public boolean unfollowUser(String followerId, String followeeId) {
         final String sql = "DELETE FROM follow WHERE followerId = ? AND followeeId = ?";
@@ -184,8 +177,8 @@ public class PeopleService {
         } catch (SQLException e) {
             System.out.println(e);
             return false;
-        }
-    }
+        } //try-catch
+    } //unfollowUser
 
 
 }

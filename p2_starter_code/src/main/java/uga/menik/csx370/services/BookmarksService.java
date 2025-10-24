@@ -30,7 +30,7 @@ public class BookmarksService {
     public BookmarksService(DataSource datasource, PostService postService) {
         this.dataSource = datasource;
         this.postService = postService;
-    }
+    } //BookmarksService
 
     /*
      * Adds a bookmark to a post. 
@@ -52,15 +52,13 @@ public class BookmarksService {
             } else {
                 System.out.println("No author found for postId: " + postId);
                 return false;
-            }
-	    
+            } //if-else
         } catch (SQLException e){
             e.printStackTrace();
             return false;
-	    }
+	    } //try-catch
 
-	System.out.println("Author id going into query: " + authorId);
-
+	    System.out.println("Author id going into query: " + authorId);
 
         // inserting the user and the post they bookmarked into the bookmark table 
         final String postSql = "insert into bookmark (userId, postId, authorId) values (?, ?, ?)";
@@ -78,19 +76,17 @@ public class BookmarksService {
         } catch (SQLException e){
             e.printStackTrace();
             return false;
-	    }
-    }
+	    } //try-catch
+    } //addBookmark
 
     /*
      * Removes a bookmark from a post. 
      * returns true if the bookmark was removed.
      */
     public boolean removeBookmark(User user, String postId) throws SQLException {
-
         // shouldnt need this first part because we have both userId and postId to delete bookmark
 
         final String getAuthor = "select p.userId from post p where p.postId = ?";
-
 
         // run author query first
         String authorId = null;
@@ -110,7 +106,7 @@ public class BookmarksService {
         } catch (SQLException e){
             e.printStackTrace();
             return false;
-	    }
+	    } //try-catch
 
         // deleting the user and the post they bookmarked into the bookmark table 
         final String removeSql = "delete from bookmark where userId = ? and postId = ? and authorId = ?";
@@ -126,9 +122,8 @@ public class BookmarksService {
         } catch (SQLException e){
             e.printStackTrace();
             return false;
-        }
-
-    }
+        } //try-catch
+    } //removeBookmark
 
     /*
      * Shows the posts that the User has bookmarked. 
@@ -200,15 +195,11 @@ public class BookmarksService {
                     LocalDateTime correctedEasterndateTime = currentUTC.toLocalDateTime().minusHours(4);
                 
                     posts.add(postService.helpPost(rs, heartsCount, commentCount, isLiked, true));
-
                 } 
             } // try
         } catch (SQLException e){
-	    e.printStackTrace();
-	}
-	
+	        e.printStackTrace();
+	    } //try-catch
         return posts;
-    }
-
-    
+    } //getBookMarked
 }
