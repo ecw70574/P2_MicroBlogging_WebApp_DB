@@ -99,6 +99,7 @@ public class PostService {
                                                     "FROM post p " +
                                                     "JOIN user u ON p.userId = u.userId " +
                                                     "WHERE p.userId IN (SELECT f.followeeId FROM follow f WHERE f.followerId = ?) " +
+                                                            "OR p.userId = ? " +
                                                     "ORDER BY p.postDate DESC ";
                                                     //"WHERE p.postId IN (SELECT b.postId FROM bookmark b WHERE b.userId = ? ) " +
                                                     //"and p.postId IN (SELECT l.postId FROM post_like l WHERE l.userId = ?)";
@@ -115,8 +116,7 @@ public class PostService {
             isBooked1.setString(1, logged_in_userId);
             isBooked1.setString(2, logged_in_userId);
             isBooked1.setString(3, logged_in_userId);
-            //isBooked1.setString(3, logged_in_userId);
-            //isBooked1.setString(4, logged_in_userId);
+            isBooked1.setString(4, logged_in_userId);
             try(ResultSet rs = isBooked1.executeQuery()) {
                 while (rs.next()) {
                     //set helper method parameters

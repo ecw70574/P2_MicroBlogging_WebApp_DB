@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +13,6 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uga.menik.csx370.services.PostService;
 
 import uga.menik.csx370.models.Post;
 import uga.menik.csx370.models.User;
@@ -147,15 +145,16 @@ public class BookmarksService {
 
         final String getBookMarkedSql = 
         "select count(distinct pl.userId) as heartsCount, p.postId, b.authorId as userId, p.content, p.postDate, u.firstName, u.lastName, " +
-	"count(distinct c.commentId) as commentCount, " + 
-        "exists (select 1 from post_like pl2 where pl2.postId = p.postId and pl2.userId = ?) as isLiked " +
+	            "count(distinct c.commentId) as commentCount, " + 
+                "exists (select 1 from post_like pl2 where pl2.postId = p.postId and pl2.userId = ?) as isLiked " +
         "from bookmark b " +
         "join post p on p.postId = b.postId " +  
         "join user u on u.userId = b.authorId " +
         "left join post_like pl on pl.postId = p.postId " +
-	"left join comment c on c.postId = p.postId " +
+	    "left join comment c on c.postId = p.postId " +
         "where b.userId = ? " +
-        "group by p.postId, b.authorId, p.postDate, u.firstName, u.lastName";
+        "group by p.postId, b.authorId, p.postDate, u.firstName, u.lastName " +
+        "order by p.postDate desc";
         
 
         // final String getIsLikedByUser = "with userHearted as select(postId from post_like where userId = ?) as userHeartedPost";
