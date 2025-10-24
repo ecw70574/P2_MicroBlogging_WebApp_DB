@@ -1,5 +1,5 @@
 -- Create the database.
---create database if not exists csx370_mb_platform;
+-- create database if not exists csx370_mb_platform;
 
 -- Use the created database.
 -- use csx370_mb_platform;

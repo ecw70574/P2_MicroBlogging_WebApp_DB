@@ -70,8 +70,9 @@ public class TrendingService {
             left join likeCounts lc on p.postId = lc.postId
 	    left join commentCounts cc on p.postId = cc.postId
             left join bookmarkCounts bc on p.postId = bc.postId
-            order by totalScore desc
-            limit 10;
+            order by totalScore desc, p.postDate desc
+            limit 10
+        ;
              """;
         
         try(Connection conn = dataSource.getConnection();

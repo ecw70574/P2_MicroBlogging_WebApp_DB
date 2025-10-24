@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,15 +17,9 @@ import javax.sql.DataSource;
 import org.springframework.stereotype.Service;
 
 import uga.menik.csx370.models.Comment;
-import uga.menik.csx370.models.Post;
 import uga.menik.csx370.models.ExpandedPost;
+import uga.menik.csx370.models.Post;
 import uga.menik.csx370.models.User;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.ZoneId;       
-import java.time.format.DateTimeFormatter;
 
 
 /**
@@ -133,9 +129,7 @@ public class PostService {
                         isHearted = true;
                     } //if
                     int heartsCount = rs.getInt("heartsCount");
-		    int commentCount = rs.getInt("commentCount");
-                    //once comments is implemented:
-                    //int commentsCount = rs.getInt("heartsCount");
+		            int commentCount = rs.getInt("commentCount");
                     posts.add(helpPost(rs, heartsCount, commentCount, isHearted, isBookmarked)); // isHearted = true, isBookmarked = true
                 }
             }
