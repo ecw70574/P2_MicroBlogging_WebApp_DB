@@ -163,12 +163,6 @@ public class PostService {
                 } //if
             } //try
         } //try
-        
-        /*
-        final String getPostSql = "select count(pl.userId) as heartsCount, p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName " +
-        "from post p join user u on p.userId = u.userId where p.postId = ?" +
-        "and join post_like pl where pl.postId = p.postId";
-         */
 
         final String getPostSql = "SELECT COUNT(DISTINCT pl.userId) as heartsCount, p.postId, p.content, p.postDate, u.userId, u.firstName, u.lastName, " +
                                             "COUNT(DISTINCT c.commentId) as commentCount " +
@@ -292,7 +286,9 @@ public class PostService {
     } //getUserPosts
 
 
-    //adds a like to a post
+    /**
+     * This adds a like to a post. 
+     */
     public boolean addLike(String userId, String postId) {
 
         String sql = "insert ignore into post_like (userId, postId) values (?, ?)";
@@ -311,7 +307,9 @@ public class PostService {
         } //try-catch
     } //addLike
 
-        //removes a like from a post
+    /**
+     * This removes a like from a post.
+     */
     public boolean removeLike(String userId, String postId) {
         String sql = "delete from post_like where userId = ? and postId = ?";
 
@@ -356,6 +354,14 @@ public class PostService {
         return post;
     } //helpPost
 
+    /**
+     * This creates a comment.
+     * @param userId
+     * @param postId
+     * @param content
+     * @return true if comment is created, false otherwise
+     * @throws SQLException
+     */
     public boolean createComment(String userId, String postId, String content) throws SQLException {
 	System.out.println("Post controller has entered post service method for creating comment");
         String commentSql = "insert into comment (commenterId, postId, content, commentDate) values (?, ?, ?, NOW())";
@@ -370,6 +376,10 @@ public class PostService {
     } // createComment: Mariah's method
 
 
+    /**
+     * This gets the comments from a specific post.
+     * The postid is passed.
+     */
     public List<Comment> getCommentsByPostId(String postId) throws SQLException {
         List<Comment> comments = new ArrayList<>();
         final String commentSql = "Select c.commentId, c.content, c.commentDate, u.userId, u.firstName, u.lastName " +

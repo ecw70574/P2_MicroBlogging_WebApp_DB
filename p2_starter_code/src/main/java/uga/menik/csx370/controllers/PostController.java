@@ -140,31 +140,6 @@ public class PostController {
         return "redirect:/post/" + postId + "?error=" + err;
     } //handleHeartAction
 
-
-
-
-    //   /**
-    //  * Handles likes added on posts.
-    //  * See comments on webpage function to see how path variables work here.
-    //  * See comments in PeopleController.java in followUnfollowUser function regarding 
-    //  * get type form submissions and how path variables work.
-    //  */
-    // @GetMapping("/{postId}/heart/{isAdd}")
-    // public String addOrRemoveHeart(@PathVariable("postId") String postId,
-    //         @PathVariable("isAdd") Boolean isAdd) {
-    //     System.out.println("The user is attempting add or remove a heart:");
-    //     System.out.println("\tpostId: " + postId);
-    //     System.out.println("\tisAdd: " + isAdd);
-
-    //     // Redirect the user if the comment adding is a success.
-    //     // return "redirect:/post/" + postId;
-
-    //     // Redirect the user with an error message if there was an error.
-    //     String message = URLEncoder.encode("Failed to (un)like the post. Please try again.",
-    //             StandardCharsets.UTF_8);
-    //     return "redirect:/post/" + postId + "?error=" + message;
-    // }
-
     /**
      * Handles bookmarking posts.
      * See comments on webpage function to see how path variables work here.

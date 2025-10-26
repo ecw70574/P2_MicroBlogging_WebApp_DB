@@ -130,13 +130,6 @@ public class BookmarksService {
      */
     public List<Post> getBookMarked(User user) throws SQLException {
         // joining post and bookmarks to get the posts that have been bookmarked
-        /* 
-        final String getBookMarkedSql = "select p.postId, b.authorId, p.content, p.postDate, u.firstName as authorFN, u.lastName as authorLN " +
-        "from bookmark b " +
-        "join post p on p.postId = b.postId " +  
-        "join user u on u.userId = b.authorId " +
-        "where b.userId = ?";
-        */
 
         final String getBookMarkedSql = 
         "select count(distinct pl.userId) as heartsCount, p.postId, b.authorId as userId, p.content, p.postDate, u.firstName, u.lastName, " +
@@ -151,22 +144,6 @@ public class BookmarksService {
         "group by p.postId, b.authorId, p.postDate, u.firstName, u.lastName " +
         "order by p.postDate desc";
         
-
-        // final String getIsLikedByUser = "with userHearted as select(postId from post_like where userId = ?) as userHeartedPost";
-        /* 
-        boolean isLiked = false;
-	    try(Connection conn = dataSource.getConnection();
-	        PreparedStatement likeStmt = conn.prepareStatement(getBookMarkedSql)) {
-            // params 
-	        likeStmt.setString(1,user.getUserId());
-            l
-	        try(ResultSet rs = likeStmt.executeQuery()) {
-		        if (rs.next()) {
-		            isLiked = rs.getBoolean(1);
-		        }
-	        }
-	    }
-        */
         List<Post> posts = new ArrayList<>();
 
         try (Connection conn = dataSource.getConnection(); //establish connection with database

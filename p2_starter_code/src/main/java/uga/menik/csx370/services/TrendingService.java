@@ -30,12 +30,20 @@ public class TrendingService {
         this.postService = postService;
     } //TrendingService
 
+    /**
+     * This returns a list of the top 10 posts. 
+     * A post is considered trending based on total number of likes, comments, and bookmarks. 
+     * @return
+     * @throws SQLException
+     */
     public List<Post> getTrendingPosts() throws SQLException {
         List<Post> posts = new ArrayList<>();
 
         User this_user = userService.getLoggedInUser();
         String logged_in_userId = this_user.getUserId();
 
+        //This SQL string is based on the string from the original getUserPosts string. 
+        //It also combines the total number of likes, comments, and bookmarks to determine if the post is trending. 
         final String trendingSql = """
             With userBookmarked As (
                 Select postId

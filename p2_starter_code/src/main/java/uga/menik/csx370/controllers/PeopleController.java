@@ -51,7 +51,10 @@ public class PeopleController {
         return mv;
     } //webpage
 
-  
+
+    /**
+    * Handles follow/unfollow functionality.
+    */
     @GetMapping("{userId}/follow/{isFollow}")
     public String followUnfollowUser(@PathVariable("userId") String userId,
             @PathVariable("isFollow") Boolean isFollow) {
